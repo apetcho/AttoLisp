@@ -240,10 +240,20 @@ static al_object_t* al_new_primitive(void *root, al_primitive_t fn){
         return result;
 }
 
+
+// *****
 static al_object_t* al_new_function(
     void *root, al_object_t **env, int type, al_object_t **params,
     al_object_t **body
-){}
+){
+    assert(type == ATTOLISP_TYPE_FUNCTION || type == ATTOLISP_TYPE_MACRO);
+    al_object_t *result = al_alloc(root, type, sizeof(al_object_t*)*3);
+    result->params = *params;
+    result->body = *body;
+    result->env = *env;
+
+    return result;
+}
 
 static al_object_t* al_new_env(
     void *root, al_object_t **vars, al_object_t **up
