@@ -829,7 +829,9 @@ static al_object_t* al_handle_function(
 
 static al_object_t* al_primitive_lambda(
     void *root, al_object_t **env, al_object_t **list
-){}
+){
+    return al_handle_function(root, env, list, ATTOLISP_TYPE_FUNCTION);
+}
 
 static al_object_t* al_handle_defun(
     void *root, al_object_t **env, al_object_t **list, int type
