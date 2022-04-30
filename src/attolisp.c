@@ -768,7 +768,23 @@ static al_object_t* al_primitive_plus(
 
 static al_object_t* al_primitive_minus(
     void *root, al_object_t **env, al_object_t **list
-){}
+){
+    al_object_t *args = al_eval_list(root, env, list);
+    for(al_object_t *pointer = args; pointer != al_nil; pointer = pointer->cdr){
+        if(pointer->car->type != ATTOLISP_TYPE_INT){
+            al_error("- takes only numbers");
+        }
+    }
+    if(args->cdr == al_nil){
+        return al_new_int(root, -args->car->value);
+    }
+    int result = args->car->value;
+    for(al_object_t *pointer=args->cdr; pointer!=al_nil; pointer=pointer->cdr){
+        result -= pointer->car->value;
+    }
+
+    return al_new_int(root, result);
+}
 
 
 static al_object_t* al_primitive_lt(
