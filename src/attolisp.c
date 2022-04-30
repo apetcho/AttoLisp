@@ -561,6 +561,11 @@ al_object_t* al_print(al_object_t *object){
     return NULL;
 }
 
+al_object_t* al_newline(al_object_t *object){
+    puts("");
+    return NULL;
+}
+
 void al_gc_init(void);
 al_object_t* al_gc_alloc(al_tag_t tag, al_object_t *car, al_object_t *cdr){}
 void al_gc_protect(al_object_t **root, ...){}
@@ -571,5 +576,4 @@ void al_gc_collect(void){}
 // ---
 
 
-al_object_t* al_newline(al_object_t *object){}
 al_object_t* al_read(al_object_t *object){}
