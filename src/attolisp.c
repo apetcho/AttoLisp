@@ -739,9 +739,15 @@ static al_object_t* al_primitive_while(
     return al_nil;
 }
 
+// *****
 static al_object_t* al_primitive_gensym(
     void *root, al_object_t **env, al_object_t **list
-){}
+){
+    static int count = 0;
+    char buffer[10];
+    snprintf(buffer, sizeof(buffer), "G__%d", count++);
+    return al_new_symbol(root, buffer);
+}
 
 static al_object_t* al_primitive_plus(
     void *root, al_object_t **env, al_object_t **list
