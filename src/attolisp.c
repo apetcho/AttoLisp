@@ -859,7 +859,18 @@ static al_object_t* al_primitive_defun(
 
 static al_object_t* al_primitive_define(
     void *root, al_object_t **env, al_object_t **list
-){}
+){
+    if(al_length(*list) != 2 || (*list)->car->type != ATTOLISP_TYPE_SYMBOL){
+        al_error("Malformed define");
+    }
+    AL_DEFINE2(symbol, value);
+    *symbol = (*list)->car;
+    *value = (*list)->cdr->car;
+    *value = al_eval(root, env, value);
+    al_add_variable(root, env, symbol, value);
+
+    return *value;
+}
 
 static al_object_t* al_primitive_defmacro(
     void *root, al_object_t **env, al_object_t **list
