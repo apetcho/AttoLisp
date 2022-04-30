@@ -649,7 +649,9 @@ void al_gc_protect(al_object_t **root, ...){
     va_end(args);
 }
 
-void al_gc_pop(void){}
+void al_gc_pop(void){
+    al_gc.nroots = rootstack[--al_gc.roottop];
+}
 
 
 // ---
