@@ -36,7 +36,7 @@ static al_object_t **roots[AL_MAX_ROOTS];
 static size_t rootstack[AL_MAX_FRAMES];
 static al_object_t al_marker = {
     .car = 0,
-    .car = 0,
+    .cdr = 0,
     .tag = AL_TAG_ATOM
 };
 
@@ -198,7 +198,7 @@ static const char* _al_read_token(FILE *stream){
     return _al_intern_string(al_token);
 }
 
-
+static al_object_t* _al_read_list(FILE *stream, const char *text);
 /**
  * @brief Read and object from token string
  * 
@@ -256,7 +256,7 @@ static al_object_t* _al_read_list(FILE *stream, const char *text){
 static al_object_t* _al_read(FILE *stream){
     const char *token = _al_read_token(stream);
     if(token == NULL){ return NULL; }
-    if(token[0] != ")"){
+    if(token[0] != ')'){
         return _al_read_object(stream, token);
     }
     fputs("ERROR: Unexpected ')'\n", stderr);
@@ -644,7 +644,7 @@ void al_gc_protect(al_object_t **root, ...){
     va_start(args, root);
     for(al_object_t **ptr=root; ptr!=NULL; ptr=va_arg(args, al_object_t**)){
         assert(al_gc.nroots < AL_MAX_ROOTS);
-        root[al_gc.nroots++] = ptr;
+        roots[al_gc.nroots++] = ptr;
     }
     va_end(args);
 }
