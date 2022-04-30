@@ -994,6 +994,33 @@ static bool al_getenv_flag(char *name){
 // ---- M A I N    D R I V E R -----
 // *********************************
 int main(int argc, char **argv){
+    // Debug flag
+    al_gc_debug = al_getenv_flag("ATTOLISP_GC_DEBUG");
+    al_gc_always = al_getenv_flag("ATTOLISP_GC_ALWAYS");
+    // Memory allocation
+    al_memory = al_alloc_semispace();
+    // Constants and primitives
+    al_symbols = al_nil;
+    void *root = NULL;
+    AL_DEFINE2(env, expr);
+    *env = al_new_env(root, &al_nil, al_nil);
+    al_define_constants(root, env);
+    al_define_primitives(root, env);
 
+    // main loop
+    while(1){
+        *expr = al_read_expr(root);
+        if(!*expr){ return 0; }
+        if(*expr == al_cparen){
+            al_error("Stray close parenthesis");
+        }
+        if(*expr == al_dot){
+            al_error("Stray dot");
+        }
+        al_print(al_eval(root, env, expr));
+        printf("\n");
+    }
+
+    // never reached
     return EXIT_SUCCESS;
 }
