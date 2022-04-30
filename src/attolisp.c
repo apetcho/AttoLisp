@@ -945,7 +945,12 @@ static al_object_t* al_primitive_eq(
 
 static al_object_t* al_add_primitive(
     void *root, al_object_t **env, char *name, al_primitive_t fn
-){}
+){
+    AL_DEFINE2(symbol, primitive);
+    *symbol = al_intern(root, name);
+    *primitive = al_new_primitive(root, fn);
+    al_add_variable(root, env, symbol, primitive);
+}
 
 static al_object_t* al_define_constants(void *root, al_object_t **env){}
 
