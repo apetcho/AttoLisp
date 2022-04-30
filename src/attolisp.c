@@ -355,9 +355,28 @@ static al_object_t* _al_new_env(al_object_t*env){
     return _al_new_cons(NULL, env);
 }
 
+/**
+ * @brief Reverse a list
+ * 
+ * @param list 
+ * @return al_object_t* 
+ */
+static al_object_t* _al_reverse_list(al_object_t *list){
+    if(list == NULL){ return NULL; }
+    al_object_t *prev = NULL;
+    al_object_t *current = list;
+    al_object_t *next = list->cdr;
+    while(current){
+        current->cdr = prev;
+        prev = current;
+        current = next;
+        if(next != NULL){ next = next->cdr; }
+    }
+
+    return prev;
+}
 
 
 static void _al_print(al_object_t *object);
 static al_object_t* _al_eval(al_object_t *env, al_object_t *object);
-static al_object_t* _al_reverse_list(al_object_t *list);
 
