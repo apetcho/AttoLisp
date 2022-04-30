@@ -60,7 +60,7 @@ static al_object_t *al_symbols;
 // ---
 static void *al_memory;
 static void *al_from;
-static size_t *al_mem_used = 0;
+static size_t al_mem_used = 0;
 // GC flags
 static bool al_gc_running = false;
 static bool al_gc_debug = false;
@@ -84,7 +84,30 @@ static inline size_t al_round_up(size_t var, size_t size){
 }
 
 
-static al_object_t* al_alloc(void *root, int type, size_t size);
+// ******
+static al_object_t* al_alloc(void *root, int type, size_t size){
+    size = al_round_up(size, sizeof(void*));
+    size += offsetof(al_object_t, value);
+    size = al_round_up(size, sizeof(void*));
+    if(al_gc_always && !al_gc_running){
+        attolisp_gc(root);
+    }
+
+    if(!al_gc_always && ATTOLISP_MEMSIZE < al_mem_used + size){
+        attolisp_gc(root);
+    }
+
+    if(ATTOLISP_MEMSIZE < al_mem_used + size){
+        al_error("Memory exhausted");
+    }
+
+    al_object_t *object = al_memory + al_mem_used;
+    object->type = type;
+    object->size = size;
+    al_mem_used += size;
+
+    return object;
+}
 
 // -------------------------------
 // ----- GARBAGE COLLECTOR -------
