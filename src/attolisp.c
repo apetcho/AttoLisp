@@ -115,7 +115,27 @@ static al_object_t* al_alloc(void *root, int type, size_t size){
 static al_object_t *scan1;
 static al_object_t *scan2;
 
-static inline al_object_t* al_forward(al_object_t *object);
+// *****
+static inline al_object_t* al_forward(al_object_t *object){
+    ptrdiff_t offset = (uint8_t*)object - (uint8_t*)al_from;
+    if(offset < 0 || ATTOLISP_MEMSIZE <= offset){
+        return object;
+    }
+
+    if(object->type == ATTOLISP_TYPE_MOVED){
+        return object->moved;
+    }
+
+    al_object_t *pointer = scan2;
+    memcpy(pointer, object, object->size);
+    scan2 = (al_object_t*)((uint8_t*)scan2 + object->size);
+
+    object->type = ATTOLISP_TYPE_MOVED;
+    object->moved = pointer;
+    return pointer;
+}
+
+
 static void* al_alloc_semispace();
 static void al_forward_root_objects(void *root);
 
