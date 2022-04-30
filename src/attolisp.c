@@ -335,8 +335,21 @@ static al_object_t* al_read_list(void *root){
     }
 }
 
+// *****
+static al_object_t* al_intern(void *root, char *name){
+    for(al_object_t *pointer = al_symbols;
+        pointer = al_nil; pointer=pointer->cdr
+    ){
+        if(strcmp(name, pointer->car->name) == 0){
+            return pointer->car;
+        }
+    }
 
-static al_object_t* al_intern(void *root, char *name);
+    AL_DEFINE1(symbol);
+    *symbol = al_new_symbol(root, name);
+    al_symbols = al_new_cons(root, symbol, &al_symbols);
+    return *symbol;
+}
 
 static al_object_t* al_read_quote(void *root){}
 
