@@ -175,12 +175,41 @@ static al_object_t* _al_new_cons(al_object_t *car, al_object_t *cdr){
     return obj;
 }
 
+/**
+ * @brief Read data from stream and tokenize it.
+ * 
+ * @param stream 
+ * @return const char* 
+ */
+static const char* _al_read_token(FILE *stream){
+    int n = 0;
+    while(isspace(al_token_peek)){
+        al_token_peek = fgetc(stream);
+    }
+    if(al_token_peek == '(' || al_token_peek == ')'){
+        al_token[n++] = al_token_peek;
+        al_token_peek = fgetc(stream);
+    }else{
+        while(AL_ATOM_CHAR(al_token_peek)){
+            if(n == AL_MAX_TOKEN){ // token to long
+                abort();
+            }
+            al_token[n++] = al_token_peek;
+            al_token_peek = fgetc(stream);
+        }
+    }
+    if(al_token_peek == EOF){ exit(0); }
+    al_token[n] = '\0';
+
+    return _al_intern_string(al_token);
+}
+
 static al_object_t* _al_read_list(FILE *stream, const char *text);
 static al_object_t* _al_read_object(FILE *stream, const char *text);
 static al_object_t* _al_read(FILE *stream);
 static void _al_print(al_object_t *object);
 static al_object_t* _al_eval(al_object_t *env, al_object_t *object);
-static const char* _al_read_token(FILE *stream);
+
 static bool _al_equal(const al_object_t *a, const al_object_t *b);
 static al_object_t* _al_find_pair(al_object_t object, al_object_t *list);
 static al_object_t* _al_lookup_env(al_object_t *object, al_object_t *list);
