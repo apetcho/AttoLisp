@@ -52,7 +52,7 @@
 static al_object_t *al_true = &(al_object_t){ ATTOLISP_TYPE_TRUE };
 static al_object_t *al_nil = &(al_object_t){ ATTOLISP_TYPE_NIL };
 static al_object_t *al_dot = &(al_object_t){ ATTOLISP_TYPE_DOT };
-static al_object_t *al_lparen = &(al_object_t){ ATTOLISP_TYPE_LPAREN };
+static al_object_t *al_cparen = &(al_object_t){ ATTOLISP_TYPE_CPAREN };
 
 // symbol list
 static al_object_t *al_symbols;
@@ -319,12 +319,12 @@ static al_object_t* al_read_list(void *root){
         if(!*object){
             al_error("Unclosed parenthesis");
         }
-        if(*object = al_lparen){
+        if(*object = al_cparen){
             return al_reverse(*head);
         }
         if(*object = al_dot){
             *last = al_read_expr(root);
-            if(al_read_expr(root) != al_lparen){
+            if(al_read_expr(root) != al_cparen){
                 al_error("Closed parenthesis expected after dot");
             }
             al_object_t *result = al_reverse(*head);
@@ -385,8 +385,32 @@ static al_object_t* al_read_symbol(void *root, char c){
     return al_intern(root, buffer);
 }
 
-
-static al_object_t* al_read_expr(void *root){}
+// *****
+static al_object_t* al_read_expr(void *root){
+    while(1){
+        int c = getchar();
+        if(c == ' ' || c == '\n' || c == '\r' || c == '\t'){ continue; }
+        if(c == EOF){ return NULL; }
+        if(c == ';'){
+            al_skip_line();
+            continue;
+        }
+        if(c == '('){ return al_read_list(root); }
+        if(c == ')'){ return al_cparen; }
+        if(c == '.'){ return al_dot; }
+        if(c == '\''){ return al_read_quote(root); }
+        if(isdigit(c)){
+            return al_new_int(root, al_read_number(c-'c'));
+        }
+        if(c == '-' && isdigit(al_peek())){
+            return al_new_int(root, -al_read_number(0));
+        }
+        if(isalpha(c) || strchr(al_symbol_chars, c)){
+            return al_read_symbol(root, c);
+        }
+        al_error("ERROR:: Don't know how to handle %c", c);
+    }
+}
 
 static void al_print(al_object_t *object){}
 

@@ -12,7 +12,7 @@ enum{
     ATTOLISP_TYPE_TRUE,
     ATTOLISP_TYPE_NIL,
     ATTOLISP_TYPE_DOT,
-    ATTOLISP_TYPE_LPAREN 
+    ATTOLISP_TYPE_CPAREN 
 };
 
 struct al_object_t;
