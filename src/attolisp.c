@@ -554,12 +554,26 @@ static al_object_t* al_apply_callback(
     return al_progn(root, newEnv, body);
 }
 
+// *****
 static al_object_t* al_apply(
     void *root,
     al_object_t **env,
     al_object_t **callback,
     al_object_t **args
-){}
+){
+    if(!al_is_list(*args)){
+        al_error("ERROR: argument must be a list");
+    }
+    if((*callback)->type == ATTOLISP_TYPE_PRIMITIVE){
+        return (*callback)->fn(root, env, args);
+    }
+    if((*callback)->type == ATTOLISP_TYPE_FUNCTION){
+        AL_DEFINE1(xargs);
+        *xargs = al_eval_list(root, env, args);
+        return al_apply_callback(root, env, callback, xargs);
+    }
+    al_error("ERROR:: not supported");
+}
 
 static al_object_t* al_find(al_object_t **env, al_object_t *sym){}
 
