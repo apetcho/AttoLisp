@@ -32,14 +32,7 @@ static const char *AL_DEFINE = NULL;
 static char al_token[AL_MAX_TOKEN];
 static int al_token_peek = 0;
 static al_object_t *al_true =NULL;
-static al_object_t *heap;
-static al_object_t *tospace;
-static al_object_t *fromspace;
-static al_object_t *allocptr;
-static al_object_t *scanptr;
 static al_object_t **roots[AL_MAX_ROOTS];
-size_t roottop;
-size_t numroots;
 static al_object_t al_marker = {
     .car = 0,
     .car = 0,
@@ -617,7 +610,30 @@ void al_gc_collect(void){
     }
 }
 
-void al_gc_init(void);
+
+void al_gc_init(void){
+    static al_object_t *heap;
+    static al_object_t *tospace;
+    static al_object_t *fromspace;
+    static al_object_t *allocptr;
+    static al_object_t *scanptr;
+    size_t roottop;
+    size_t numroots;
+
+    allocptr = fromspace = heap = malloc(sizeof(al_object_t)*AL_HEAPSIZE*2);
+    scanptr = tospace = heap + AL_HEAPSIZE;
+    numroots = 0;
+    roottop = 0;
+    al_gc.allocptr = allocptr;
+    al_gc.from = fromspace;
+    al_gc.to = tospace;
+    al_gc.scanptr = scanptr;
+    al_gc.heap = heap;
+    al_gc.nroots = numroots;
+    al_gc.roottop = roottop;
+}
+
+
 al_object_t* al_gc_alloc(al_tag_t tag, al_object_t *car, al_object_t *cdr){}
 void al_gc_protect(al_object_t **root, ...){}
 void al_gc_pop(void){}
