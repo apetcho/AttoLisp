@@ -351,7 +351,16 @@ static al_object_t* al_intern(void *root, char *name){
     return *symbol;
 }
 
-static al_object_t* al_read_quote(void *root){}
+// *****
+static al_object_t* al_read_quote(void *root){
+    AL_DEFINE2(symbol, tmp);
+    *symbol = al_intern(root, "quote");
+    *tmp = al_read_expr(root);
+    *tmp = al_new_cons(root, tmp, &al_nil);
+    *tmp = al_new_cons(root, symbol, tmp);
+    return *tmp;
+}
+
 
 static int al_read_number(int value){}
 
