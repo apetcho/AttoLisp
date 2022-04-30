@@ -920,7 +920,18 @@ static al_object_t* al_primitive_if(
 
 static al_object_t* al_primitive_number_eq(
     void *root, al_object_t **env, al_object_t **list
-){}
+){
+    if(al_length(*list) != 2){
+        al_error("Malformed =");
+    }
+    al_object_t *values = al_eval_list(root, env, list);
+    al_object_t *x = values->car;
+    al_object_t *y = values->cdr->car;
+    if(x->type != ATTOLISP_TYPE_NIL || y->type != ATTOLISP_TYPE_INT){
+        al_error("= only takes numbers");
+    }
+    return x->value == y->value ? al_true : al_nil;
+}
 
 static al_object_t* al_primitive_eq(
     void *root, al_object_t **env, al_object_t **list
