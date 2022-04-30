@@ -749,9 +749,22 @@ static al_object_t* al_primitive_gensym(
     return al_new_symbol(root, buffer);
 }
 
+// *****
 static al_object_t* al_primitive_plus(
     void *root, al_object_t **env, al_object_t **list
-){}
+){
+    int result = 0;
+    for(al_object_t *args = al_eval_list(root, env, list);
+        args != al_nil; args = args->cdr
+    ){
+        if(args->car->type != ATTOLISP_TYPE_INT){
+            al_error("+ takes only numbers");
+        }
+        result += args->car->value;
+    }
+
+    return al_new_int(root, result);
+}
 
 static al_object_t* al_primitive_minus(
     void *root, al_object_t **env, al_object_t **list
