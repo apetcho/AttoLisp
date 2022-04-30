@@ -463,12 +463,18 @@ static al_object_t* al_eval(
     void *root, al_object_t **env, al_object_t **object
 );
 
+// *****
 static void al_add_variable(
     void *root,
     al_object_t **env,
     al_object_t **sym,
     al_object_t **values
-){}
+){
+    AL_DEFINE2(vars, tmp);
+    *vars = (*env)->vars;
+    *tmp = al_acons(root, sym, values, vars);
+    (*env)->vars = *tmp;
+}
 
 static al_object_t* al_push_env(
     void *root,
