@@ -150,13 +150,15 @@ static al_object_t* _al_new_function(al_function_t fn){
 }
 
 /**
- * @brief 
+ * @brief Allocate a slot on the heap for a new atom
  * 
  * @param data 
  * @return al_object_t 
  */
-static al_object_t _al_new_atom(const char *data){
-
+static al_object_t* _al_new_atom(const char *data){
+    return al_gc_alloc(
+        AL_TAG_ATOM, (al_object_t*)_al_intern_string(data), NULL
+    );
 }
 
 static al_object_t* _al_read_list(FILE *stream, const char *text);
