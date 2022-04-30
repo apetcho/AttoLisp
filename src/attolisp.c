@@ -802,9 +802,30 @@ static al_object_t* al_primitive_lt(
     return x->value < y->value ? al_true : al_nil;
 }
 
+// *****
 static al_object_t* al_handle_function(
     void *root, al_object_t **env, al_object_t **list, int type
-){}
+){
+    if((*list)->type != ATTOLISP_TYPE_CELL ||
+        !al_is_list((*list)->car) ||
+        (*list)->cdr->type != ATTOLISP_TYPE_CELL
+    ){
+        al_error("Malformed lambda");
+    }
+    al_object_t *pointer = (*list)->car;
+    for(; pointer->type == ATTOLISP_TYPE_CELL; pointer = pointer->cdr){
+        if(pointer->car->type != ATTOLISP_TYPE_SYMBOL){
+            al_error("Parameter must be a symbol");
+        }
+    }
+    if(pointer != al_nil && pointer->type != ATTOLISP_TYPE_SYMBOL){
+        al_error("Parameter must be a symbol");
+    }
+    AL_DEFINE2(params, body);
+    *params = (*list)->car;
+    *body = (*list)->cdr;
+    return al_new_function(root, env, type, params, body);
+}
 
 static al_object_t* al_primitive_lambda(
     void *root, al_object_t **env, al_object_t **list
