@@ -33,6 +33,7 @@ static char al_token[AL_MAX_TOKEN];
 static int al_token_peek = 0;
 static al_object_t *al_true =NULL;
 static al_object_t **roots[AL_MAX_ROOTS];
+static size_t rootstack[AL_MAX_FRAMES];
 static al_object_t al_marker = {
     .car = 0,
     .car = 0,
@@ -612,25 +613,11 @@ void al_gc_collect(void){
 
 
 void al_gc_init(void){
-    static al_object_t *heap;
-    static al_object_t *tospace;
-    static al_object_t *fromspace;
-    static al_object_t *allocptr;
-    static al_object_t *scanptr;
-    size_t roottop;
-    size_t numroots;
-
-    allocptr = fromspace = heap = malloc(sizeof(al_object_t)*AL_HEAPSIZE*2);
-    scanptr = tospace = heap + AL_HEAPSIZE;
-    numroots = 0;
-    roottop = 0;
-    al_gc.allocptr = allocptr;
-    al_gc.from = fromspace;
-    al_gc.to = tospace;
-    al_gc.scanptr = scanptr;
-    al_gc.heap = heap;
-    al_gc.nroots = numroots;
-    al_gc.roottop = roottop;
+    al_gc.allocptr = al_gc.from = al_gc.heap = malloc(
+        sizeof(al_object_t)*AL_HEAPSIZE*2);
+    al_gc.scanptr = al_gc.to = al_gc.heap + AL_HEAPSIZE;
+    al_gc.nroots = 0;
+    al_gc.roottop = 0;
 }
 
 
@@ -650,7 +637,18 @@ al_object_t* al_gc_alloc(al_tag_t tag, al_object_t *car, al_object_t *cdr){
     return al_gc.allocptr++;
 }
 
-void al_gc_protect(al_object_t **root, ...){}
+void al_gc_protect(al_object_t **root, ...){
+    assert(al_gc.roottop < AL_MAX_FRAMES);
+    rootstack[al_gc.roottop++] = al_gc.nroots;
+    va_list args;
+    va_start(args, root);
+    for(al_object_t **ptr=root; ptr!=NULL; ptr=va_arg(args, al_object_t**)){
+        assert(al_gc.nroots < AL_MAX_ROOTS);
+        root[al_gc.nroots++] = ptr;
+    }
+    va_end(args);
+}
+
 void al_gc_pop(void){}
 
 
