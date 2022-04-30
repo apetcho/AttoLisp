@@ -634,7 +634,22 @@ void al_gc_init(void){
 }
 
 
-al_object_t* al_gc_alloc(al_tag_t tag, al_object_t *car, al_object_t *cdr){}
+al_object_t* al_gc_alloc(al_tag_t tag, al_object_t *car, al_object_t *cdr){
+    if(al_gc.allocptr+1 > al_gc.from + AL_HEAPSIZE){
+        if(tag == AL_TAG_CONS){ al_gc_protect(&car, &cdr, NULL); }
+        al_gc_collect();
+        if(tag == AL_TAG_CONS){ al_gc_pop(); }
+    }
+    if(al_gc.allocptr + 1 > al_gc.from + AL_HEAPSIZE){
+        fputs("Out of memory\n", stderr);
+        abort();
+    }
+    al_gc.allocptr->tag = tag;
+    al_gc.allocptr->car = car;
+    al_gc.allocptr->cdr = cdr;
+    return al_gc.allocptr++;
+}
+
 void al_gc_protect(al_object_t **root, ...){}
 void al_gc_pop(void){}
 
