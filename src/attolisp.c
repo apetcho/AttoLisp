@@ -161,12 +161,25 @@ static al_object_t* _al_new_atom(const char *data){
     );
 }
 
+/**
+ * @brief Allocate a slot on the heap for a new cons.
+ * 
+ * @param env 
+ * @param object 
+ * @return al_object_t* 
+ */
+static al_object_t* _al_new_cons(al_object_t *car, al_object_t *cdr){
+    al_gc_protect(&car, &cdr, NULL);
+    al_object_t *obj = al_gc_alloc(AL_TAG_CONS, car, cdr);
+    al_gc_pop();
+    return obj;
+}
+
 static al_object_t* _al_read_list(FILE *stream, const char *text);
 static al_object_t* _al_read_object(FILE *stream, const char *text);
 static al_object_t* _al_read(FILE *stream);
 static void _al_print(al_object_t *object);
 static al_object_t* _al_eval(al_object_t *env, al_object_t *object);
-static al_object_t* _al_new_cons(al_object_t *env, al_object_t *object);
 static const char* _al_read_token(FILE *stream);
 static bool _al_equal(const al_object_t *a, const al_object_t *b);
 static al_object_t* _al_find_pair(al_object_t object, al_object_t *list);
