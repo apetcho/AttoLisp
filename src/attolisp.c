@@ -509,6 +509,14 @@ al_object_t* al_cons(al_object_t *object){
     return _al_new_cons(object->car, object->cdr->car);
 }
 
+al_object_t* al_equalp(al_object_t *object){
+    al_object_t *cmp = object->car;
+    for(object = object->cdr; object != NULL; object = object->cdr){
+        if(!_al_equal(cmp, object->car)){ return NULL; }
+    }
+    return al_atom;
+}
+
 
 void al_gc_init(void);
 al_object_t* al_gc_alloc(al_tag_t tag, al_object_t *car, al_object_t *cdr){}
@@ -519,7 +527,6 @@ void al_gc_collect(void){}
 
 // ---
 
-al_object_t* al_equalp(al_object_t *object){}
 al_object_t* al_pairp(al_object_t *object){}
 al_object_t* al_nullp(al_object_t *object){}
 al_object_t* al_sum(al_object_t *object){}
