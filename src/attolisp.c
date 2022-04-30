@@ -903,7 +903,20 @@ static al_object_t* al_primitive_println(
 
 static al_object_t* al_primitive_if(
     void *root, al_object_t **env, al_object_t **list
-){}
+){
+    if(al_length(*list) < 2){
+        al_error("Malformed if");
+    }
+    AL_DEFINE3(cond, here, there);
+    *cond = (*list)->car;
+    *cond = al_eval(root, env, cond);
+    if(*cond != al_nil){
+        *here = (*list)->cdr->car;
+        return al_eval(root, env, here);
+    }
+    *there = (*list)->cdr->cdr;
+    return *there == al_nil ? al_nil : al_progn(root, env, there);
+}
 
 static al_object_t* al_primitive_number_eq(
     void *root, al_object_t **env, al_object_t **list
