@@ -534,6 +534,19 @@ al_object_t* al_sum(al_object_t *object){
     return _al_new_atom(_al_num_to_string(sum));
 }
 
+al_object_t* al_sub(al_object_t *object){
+    long sub;
+    if(object->cdr == NULL){
+        sub = -atol(AL_TEXT(object->car));
+    }else{
+        sub = atol(AL_TEXT(object->car));
+        for(object = object->cdr; object != NULL; object = object->cdr){
+            sub -= atol(AL_TEXT(object->car));
+        }
+    }
+
+    return _al_new_atom(_al_num_to_string(sub));
+}
 
 
 void al_gc_init(void);
@@ -545,7 +558,6 @@ void al_gc_collect(void){}
 
 // ---
 
-al_object_t* al_sub(al_object_t *object){}
 al_object_t* al_mul(al_object_t *object){}
 al_object_t* al_print(al_object_t *object){}
 al_object_t* al_newline(al_object_t *object){}
