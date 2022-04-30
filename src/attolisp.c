@@ -835,7 +835,21 @@ static al_object_t* al_primitive_lambda(
 
 static al_object_t* al_handle_defun(
     void *root, al_object_t **env, al_object_t **list, int type
-){}
+){
+    if((*list)->car->type != ATTOLISP_TYPE_SYMBOL ||
+        (*list)->cdr->type != ATTOLISP_TYPE_CELL
+    ){
+        al_error("Malformed defun");
+    }
+
+    AL_DEFINE3(fn, symbol, rest);
+    *symbol = (*list)->car;
+    *rest = (*list)->cdr;
+    *fn = al_handle_function(root, env, rest, type);
+    al_add_variable(root, env, symbol, fn);
+
+    return *fn;
+}
 
 static al_object_t* al_primitive_defun(
     void *root, al_object_t **env, al_object_t **list
