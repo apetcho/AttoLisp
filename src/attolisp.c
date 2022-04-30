@@ -566,7 +566,7 @@ al_object_t* al_read(al_object_t *object){
 }
 
 // ----
-static void _al_defun(al_object_t *env, const char *name, al_function_t fn){
+static void _al_register(al_object_t *env, const char *name, al_function_t fn){
     al_object_t *key = NULL;
     al_object_t *value = NULL;
     al_gc_protect(&env, &key, &value, NULL);
@@ -654,5 +654,51 @@ void al_gc_pop(void){
 }
 
 
-// ---
+// ------------------------
+//   M A I N  D R I V E R
+// ------------------------
+int main(int argc, char **argv){
+    al_gc_init();
+    AL_QUOTE = _al_intern_string("quote");
+    AL_LAMBDA = _al_intern_string("lambda");
+    AL_COND = _al_intern_string("cond");
+    AL_DEFINE = _al_intern_string("define");
+    memset(al_token, 0, AL_MAX_TOKEN);
+    al_token_peek = ' ';
 
+    al_object_t *env = NULL;
+    al_object_t *al_false = NULL;
+    al_object_t *object = NULL;
+    al_gc_protect(&env, &al_true, &al_false, &object, NULL);
+    env = _al_new_env(NULL);
+    al_true = _al_new_atom("#t");
+    al_false = _al_new_atom("#f");
+    _al_set_env(env, al_true, al_true);
+    _al_set_env(env, al_false, NULL);
+
+    _al_register(env, "car", &al_car);
+    _al_register(env, "cdr", &al_cdr);
+    _al_register(env, "cons", &al_cons);
+    _al_register(env, "equal?", &al_equalp);
+    _al_register(env, "pair?", &al_pairp);
+    _al_register(env, "null?", &al_nullp);
+    _al_register(env, "+", &al_sum);
+    _al_register(env, "-", &al_sub);
+    _al_register(env, "*", &al_mul);
+    _al_register(env, "print", &al_print);
+    _al_register(env, "newline", &al_newline);
+    _al_register(env, "read", &al_read);
+
+    FILE *stream = (argc > 1) ? fopen(argv[1], "r") : stdin;
+
+    while(1){
+        object = _al_read(stream);
+        object = _al_eval(object, env);
+        if(stream == stdin){
+            _al_print(object);
+            puts("");
+        }
+    }
+
+    return EXIT_SUCCESS;
+}
