@@ -708,9 +708,19 @@ static al_object_t* al_primitive_setq(
     return *value;
 }
 
+// *****
 static al_object_t* al_primitive_setcar(
     void *root, al_object_t **env, al_object_t **list
-){}
+){
+    AL_DEFINE1(args);
+    *args = al_eval_list(root, env, list);
+    if(al_length(*args) != 2 || (*args)->car->type != ATTOLISP_TYPE_CELL){
+        al_error("Malformed setcar");
+    }
+    (*args)->car->car = (*args)->cdr->car;
+
+    return (*args)->car;
+}
 
 static al_object_t* al_primitive_while(
     void *root, al_object_t **env, al_object_t **list
