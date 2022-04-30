@@ -269,11 +269,30 @@ static al_object_t* _al_read(FILE *stream){
     return NULL;
 }
 
+/**
+ * @brief Test whether to object are the same or members are equal.
+ * 
+ * @param a 
+ * @param b 
+ * @return true 
+ * @return false 
+ */
+static bool _al_equal(const al_object_t *a, const al_object_t *b){
+    if(a == b){ return true; }
+    if(a == NULL || b == NULL || a->tag != b->tag){
+        return false;
+    }
+    if(a->tag != AL_TAG_CONS){
+        return a->car == b->car;
+    }
+
+    return _al_equal(a->car, b->car) && _al_equal(a->cdr, b->cdr);
+}
 
 static void _al_print(al_object_t *object);
 static al_object_t* _al_eval(al_object_t *env, al_object_t *object);
 
-static bool _al_equal(const al_object_t *a, const al_object_t *b);
+
 static al_object_t* _al_find_pair(al_object_t object, al_object_t *list);
 static al_object_t* _al_lookup_env(al_object_t *object, al_object_t *list);
 static al_object_t* _al_set_env(
