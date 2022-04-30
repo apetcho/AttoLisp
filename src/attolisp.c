@@ -67,7 +67,14 @@ static bool al_gc_debug = false;
 static bool al_gc_always = false;
 
 // ---
-static void al_error(const char *fmt, ...){}
+static void al_error(const char *fmt, ...){
+    va_list args;
+    va_start(args, fmt);
+    vfprintf(stderr, fmt, args);
+    fprintf(stderr, "\n");
+    va_end(args);
+    exit(EXIT_FAILURE);
+}
 
 static void attolisp_gc(void *root);
 static inline size_t _al_round_up(size_t var, size_t size);
