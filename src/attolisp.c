@@ -362,7 +362,13 @@ static al_object_t* al_read_quote(void *root){
 }
 
 
-static int al_read_number(int value){}
+// *****
+static int al_read_number(int value){
+    while(isdigit(al_peek())){
+        value = value * 10 + (getchar() - '0');
+    }
+    return value;
+}
 
 static al_object_t* al_read_symbol(void *root, char c){}
 
