@@ -606,10 +606,44 @@ static al_object_t* al_macroexpand(
     return al_apply_callback(root, env, macro, args);
 }
 
+// *****
 static al_object_t* al_eval(
     void *root,
     al_object_t **env, al_object_t **object
-){}
+){
+    switch((*object)->type){
+    case ATTOLISP_TYPE_INT:
+    case ATTOLISP_TYPE_PRIMITIVE:
+    case ATTOLISP_TYPE_FUNCTION:
+    case ATTOLISP_TYPE_TRUE:
+    case ATTOLISP_TYPE_NIL:
+        return *object;
+    case ATTOLISP_TYPE_SYMBOL:{
+        al_object_t *bind = al_find(env, *object);
+        if(!bind){
+            al_error("ERROR: Undefined symbol: %s", (*object)->name);
+        }
+        return bind->cdr;
+    }
+    case ATTOLISP_TYPE_CELL:{
+        AL_DEFINE3(fn, expanded, args);
+        *expanded = al_macroexpand(root, env, object);
+        if(*expanded != *object){
+            return al_eval(root, env, expanded);
+        }
+        *fn = (*object)->car;
+        *fn = al_eval(root, env, fn);
+        *args = (*object)->cdr;
+        if((*fn)->type != ATTOLISP_TYPE_PRIMITIVE &&
+            (*fn)->type != ATTOLISP_TYPE_FUNCTION
+        ){
+            return al_apply(root, env, fn, args);
+        }
+    }
+    default:
+        al_error("ERROR:: eval: Unknown tag type: %d\n", (*object)->type);
+    }// end switch
+}
 
 
 // ------------------------------------------------------------------
