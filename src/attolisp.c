@@ -722,9 +722,22 @@ static al_object_t* al_primitive_setcar(
     return (*args)->car;
 }
 
+// *****
 static al_object_t* al_primitive_while(
     void *root, al_object_t **env, al_object_t **list
-){}
+){
+    if(al_length(*list) < 2){
+        al_error("ERROR: Malformed while");
+    }
+    AL_DEFINE2(cond, exprs);
+    *cond = (*list)->car;
+    while(al_eval(root, env, cond) != al_nil){
+        *exprs = (*list)->cdr;
+        al_eval_list(root, env, exprs);
+    }
+
+    return al_nil;
+}
 
 static al_object_t* al_primitive_gensym(
     void *root, al_object_t **env, al_object_t **list
