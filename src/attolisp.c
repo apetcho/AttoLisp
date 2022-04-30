@@ -156,7 +156,53 @@ static void al_forward_root_objects(void *root){
 }
 
 // ---- implemenation of al_gc
-static void attolisp_gc(void *root){}
+static void attolisp_gc(void *root){
+    assert(!al_gc_running);
+    al_gc_running = true;
+
+    al_from = al_memory;
+    scan1 = scan2 = al_memory;
+    al_forward_root_objects(root);
+
+    while(scan1 < scan2){
+        switch(scan1->type){
+        case ATTOLISP_TYPE_INT:
+        case ATTOLISP_TYPE_SYMBOL:
+        case ATTOLISP_TYPE_PRIMITIVE:
+            break;
+        case ATTOLISP_TYPE_CELL:
+            scan1->car = al_forward(scan1->car);
+            scan1->cdr = al_forward(scan1->cdr);
+            break;
+        case ATTOLISP_TYPE_FUNCTION:
+        case ATTOLISP_TYPE_MACRO:
+            scan1->params = al_forward(scan1->params);
+            scan1->body = al_forward(scan1->body);
+            scan1->env = al_forward(scan1->env);
+            break;
+        case ATTOLISP_TYPE_ENV:
+            scan1->vars = al_forward(scan1->vars);
+            scan1->up = al_forward(scan1->up);
+            break;
+        default:
+            al_error("ERROR:: copy: unknown type %d", scan1->type);
+        }// end switch
+        scan1 = (al_object_t*)((uint8_t*)scan1 + scan1->type);
+    }// end while
+
+    // Finish up garbage collection
+    munmap(al_from, ATTOLISP_MEMSIZE);
+    size_t old_mem_used = al_mem_used;
+    al_mem_used = (size_t)((uint8_t*)scan1 - (uint8_t*)al_memory);
+    if(al_gc_debug){
+        fprintf(
+            stderr, "al_gc: %zu bytes out of %zu bytes copied.\n",
+            al_mem_used, old_mem_used
+        );
+    }
+
+    al_gc_running = false;
+}
 
 // ***********************
 //      CONSTRUCTORS
