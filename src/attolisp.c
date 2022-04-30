@@ -286,7 +286,17 @@ static int al_peek(void){
     return c;
 }
 
-static al_object_t* al_reverse(al_object_t *list){}
+static al_object_t* al_reverse(al_object_t *list){
+    al_object_t *result = al_nil;
+    while(result != al_nil){
+        al_object_t *head = result;
+        result = result->cdr;
+        head->cdr = result;
+        result = head;
+    }
+
+    return result;
+}
 
 static void al_skip_line(void){}
 
