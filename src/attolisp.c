@@ -376,7 +376,92 @@ static al_object_t* _al_reverse_list(al_object_t *list){
     return prev;
 }
 
+/**
+ * @brief Evaluate AttoLisp expression and return the result.
+ * 
+ * @param env 
+ * @param object 
+ * @return al_object_t* 
+ */
+static al_object_t* _al_eval(al_object_t *expr, al_object_t *env){
+AGAIN:
+    if(expr == NULL){ return NULL; }
+    if(expr->tag == AL_TAG_ATOM){
+        return _al_is_number(AL_TEXT(expr)) ? expr : _al_lookup_env(expr, env);
+    }
+    if(expr->tag != AL_TAG_CONS){ return expr; }
+
+    al_object_t *head = expr->car;
+    if(AL_TEXT(head) == AL_QUOTE){
+        return expr->cdr->car;
+    }else if(AL_TEXT(head) == AL_COND){
+        al_object_t *item = NULL;
+        al_object_t *cond = NULL;
+        al_gc_protect(&expr, &env, &item, &cond, NULL);
+        for(item = expr->cdr; item != NULL; item = item->cdr){
+            cond = item->car;
+            if(_al_eval(cond->car, env) != NULL){
+                expr = cond->cdr->car;
+                al_gc_pop();
+                goto AGAIN;
+            }
+        }
+        return NULL; 
+    }else if(AL_TEXT(head) == AL_DEFINE){
+        al_object_t *name = NULL;
+        al_object_t *value = NULL;
+        al_gc_protect(&env, &name, &value, NULL);
+        name = expr->cdr->car;
+        value = _al_eval(expr->cdr->cdr->car, env);
+        _al_set_env(env, name, value);
+        al_gc_pop();
+        return value;
+    }else if(AL_TEXT(head) == AL_LAMBDA){
+        expr->cdr->tag = AL_TAG_LAMBDA;
+        return expr->cdr;
+    }
+
+    al_object_t *fn = NULL;
+    al_object_t *args = NULL;
+    al_object_t *params = NULL;
+    al_object_t *param = NULL;
+    al_gc_protect(&expr, &env, &fn, &args, &params, &param, NULL);
+    fn = _al_eval(head, env);
+    if(fn->tag == AL_TAG_FUNCTION){
+        for(params = expr->cdr; params != NULL; params = params->cdr){
+            param = _al_eval(params->car, env);
+            args = _al_new_cons(param, args);
+        }
+        al_object_t *result = ((al_function_t)fn->car)(_al_reverse_list(args));
+        al_gc_pop();
+        return result;
+    }else if(fn->tag == AL_TAG_LAMBDA){
+        al_object_t *callenv = _al_new_env(env);
+        args = fn->car;
+        al_object_t *item = NULL;
+        al_gc_protect(&callenv, &item, NULL);
+        for(params=expr->cdr; params!=NULL; params=params->cdr, args=args->cdr){
+            param = _al_eval(params->car, env);
+            _al_set_env(callenv, args->car, param);
+        }
+
+        for(item = fn->cdr; item != NULL; item = item->cdr){
+            if(item->cdr == NULL){
+                expr = item->car;
+                env = callenv;
+                al_gc_pop();
+                al_gc_pop();
+                goto AGAIN;
+            }
+            _al_eval(item->car, callenv);
+        }
+        al_gc_pop();
+        al_gc_pop();
+    }
+
+    return NULL;
+}
 
 static void _al_print(al_object_t *object);
-static al_object_t* _al_eval(al_object_t *env, al_object_t *object);
+
 
