@@ -894,6 +894,11 @@ static al_object_t* al_primitive_macroexpand(
 static al_object_t* al_primitive_println(
     void *root, al_object_t **env, al_object_t **list
 ){
+    AL_DEFINE1(tmp);
+    *tmp = (*list)->car;
+    al_print(al_eval(root, env, tmp));
+    printf("\n");
+    return al_nil;
 }
 
 static al_object_t* al_primitive_if(
