@@ -787,9 +787,20 @@ static al_object_t* al_primitive_minus(
 }
 
 
+// *****
 static al_object_t* al_primitive_lt(
     void *root, al_object_t **env, al_object_t **list
-){}
+){
+    al_object_t *args = al_eval_list(root, env, list);
+    if(al_length(args) != 2){al_error("Malformed <"); }
+    al_object_t *x = args->car;
+    al_object_t *y = args->cdr->car;
+    if(x->type != ATTOLISP_TYPE_INT || y->type != ATTOLISP_TYPE_INT){
+        al_error("< takes only numbers");
+    }
+
+    return x->value < y->value ? al_true : al_nil;
+}
 
 static al_object_t* al_handle_function(
     void *root, al_object_t **env, al_object_t **list, int type
