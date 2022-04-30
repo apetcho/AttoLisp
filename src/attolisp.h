@@ -1,8 +1,6 @@
 #ifndef __ATTOLISP_H_
 #define __ATTOLISP_H_
 #include<stddef.h>
-#include<stdbool.h>
-#include<stdio.h>
 
 typedef enum {
     AL_TAG_CONS,
