@@ -213,9 +213,17 @@ static al_object_t* al_new_int(void *root, int value){
     return result;
 }
 
+// *****
 static al_object_t* al_new_cons(
-    void *root, al_object_t *car, al_object_t *cdr
-){}
+    void *root, al_object_t **car, al_object_t **cdr
+){
+    al_object_t *cell = al_alloc(
+        root, ATTOLISP_TYPE_CELL, sizeof(al_object_t*)*2);
+    cell->car = *car;
+    cell->cdr = *cdr;
+
+    return cell;
+}
 
 static al_object_t* al_new_symbol(void *root, const char *name){}
 static al_object_t* al_new_primitive(void *root, al_primitive_t fn){}
