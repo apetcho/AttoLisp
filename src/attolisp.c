@@ -881,12 +881,20 @@ static al_object_t* al_primitive_defmacro(
 
 static al_object_t* al_primitive_macroexpand(
     void *root, al_object_t **env, al_object_t **list
-){}
+){
+    if(al_length(*list) != 1){
+        al_error("Malformed macroexpand");
+    }
+    AL_DEFINE1(body);
+    *body = (*list)->car;
+    return al_macroexpand(root, env, body);
+}
 
 
 static al_object_t* al_primitive_println(
     void *root, al_object_t **env, al_object_t **list
-){}
+){
+}
 
 static al_object_t* al_primitive_if(
     void *root, al_object_t **env, al_object_t **list
