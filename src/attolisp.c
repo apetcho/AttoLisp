@@ -501,6 +501,10 @@ al_object_t* al_car(al_object_t *object){
     return object->car->car;
 }
 
+al_object_t* al_cdr(al_object_t *object){
+    return object->car->cdr;
+}
+
 void al_gc_init(void);
 al_object_t* al_gc_alloc(al_tag_t tag, al_object_t *car, al_object_t *cdr){}
 void al_gc_protect(al_object_t **root, ...){}
@@ -510,8 +514,6 @@ void al_gc_collect(void){}
 
 // ---
 
-
-al_object_t* al_cdr(al_object_t *object){}
 al_object_t* al_cons(al_object_t *object){}
 al_object_t* al_equalp(al_object_t *object){}
 al_object_t* al_pairp(al_object_t *object){}
