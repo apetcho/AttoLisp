@@ -279,7 +279,12 @@ const char al_symbol_chars[] = "~!@#$%^*-_=+:/?<>";
 
 static al_object_t* al_read_expr(void *root);
 
-static int al_peek(void){}
+// *****
+static int al_peek(void){
+    int c = getchar();
+    ungetc(c, stdin);
+    return c;
+}
 
 static al_object_t* al_reverse(al_object_t *list){}
 
