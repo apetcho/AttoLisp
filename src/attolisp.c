@@ -935,7 +935,13 @@ static al_object_t* al_primitive_number_eq(
 
 static al_object_t* al_primitive_eq(
     void *root, al_object_t **env, al_object_t **list
-){}
+){
+    if(al_length(*list) != 2){
+        al_error("Malformed eq");
+    }
+    al_object_t *values = al_eval_list(root, env, list);
+    return values->car == values->cdr->car ? al_true : al_nil;
+}
 
 static al_object_t* al_add_primitive(
     void *root, al_object_t **env, char *name, al_primitive_t fn
