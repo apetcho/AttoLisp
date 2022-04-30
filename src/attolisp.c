@@ -225,7 +225,13 @@ static al_object_t* al_new_cons(
     return cell;
 }
 
-static al_object_t* al_new_symbol(void *root, const char *name){}
+// *****
+static al_object_t* al_new_symbol(void *root, const char *name){
+    al_object_t *symbol = al_alloc(root, ATTOLISP_TYPE_SYMBOL, strlen(name)+1);
+    strcpy(symbol->name, name);
+    return symbol;
+}
+
 static al_object_t* al_new_primitive(void *root, al_primitive_t fn){}
 static al_object_t* al_new_function(
     void *root, al_object_t **env, int type, al_object_t **params,
