@@ -323,11 +323,19 @@ static al_object_t* _al_lookup_env(al_object_t *object, al_object_t *list){
     return NULL;
 }
 
+/**
+ * @brief Create a new environment.
+ * 
+ * @param env 
+ * @return al_object_t* 
+ */
+static al_object_t* _al_new_env(al_object_t*env){
+    return _al_new_cons(NULL, env);
+}
 
 static void _al_print(al_object_t *object);
 static al_object_t* _al_eval(al_object_t *env, al_object_t *object);
 static al_object_t* _al_set_env(
     al_object_t *env, al_object_t *key, al_object_t *val);
-static al_object_t* _al_new_env(al_object_t*env);
 static al_object_t* _al_reverse_list(al_object_t *list);
 
