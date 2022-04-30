@@ -206,21 +206,54 @@ static const char* _al_read_token(FILE *stream){
 
 
 /**
- * @brief 
+ * @brief Read and object from token string
  * 
  * @param stream 
  * @param text 
  * @return al_object_t* 
  */
-static al_object_t* _al_read_object(FILE *stream, const char *token){
-    if(token[0] != '('){
-        return _al_new_atom(token);
+static al_object_t* _al_read_object(FILE *stream, const char *text){
+    if(text[0] != '('){
+        // (void)stream;
+        return _al_new_atom(text);
     }else{
         return _al_read_list(stream, _al_read_token(stream));
     }
 }
 
-static al_object_t* _al_read_list(FILE *stream, const char *text);
+/**
+ * @brief Read an AttoLisp from a string.
+ * 
+ * @param stream 
+ * @param text 
+ * @return al_object_t* 
+ */
+static al_object_t* _al_read_list(FILE *stream, const char *text){
+    if(text[0] == ')'){ // end of atom list.
+        return NULL;
+    }
+    al_object_t *obj1 = NULL;
+    al_object_t *obj2 = NULL;
+    al_object_t *tmp = NULL;
+    al_gc_protect(&obj1, &obj2, &tmp, NULL);
+    obj1 = _al_read_object(stream, text);
+    text = _al_read_token(stream);
+    if(text[0] == '.' && text[1] == '\0'){
+        text = _al_read_token(stream);
+        tmp = _al_read_object(stream, text);
+        obj2 = _al_new_cons(obj1, tmp);
+        al_gc_pop();
+        if(text[0] == ')'){ return obj2; }
+        fputs("ERROR: Malformed dotted cons\n", stderr);
+        return NULL;
+    }
+    tmp = _al_read_list(stream, text);
+    obj2 = _al_new_cons(obj1, tmp);
+    al_gc_pop();
+    return obj2;
+}
+
+
 static al_object_t* _al_read(FILE *stream);
 static void _al_print(al_object_t *object);
 static al_object_t* _al_eval(al_object_t *env, al_object_t *object);
