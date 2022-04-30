@@ -518,10 +518,20 @@ static al_object_t* al_progn(
     return *result;
 }
 
+// *****
 static al_object_t* al_eval_list(
-    void *root,
-    al_object_t **env, al_object_t **list
-){}
+    void *root, al_object_t **env, al_object_t **list
+){
+    AL_DEFINE4(head, pointer, expr, result);
+    *head = al_nil;
+    for(pointer = list; *pointer != al_nil; *pointer = (*pointer)->cdr){
+        *expr = (*pointer)->car;
+        *result = al_eval(root, env, expr);
+        *head = al_new_cons(root, result, head);
+    }
+
+    return al_reverse(*head);
+}
 
 static bool al_is_list(al_object_t *object){}
 
