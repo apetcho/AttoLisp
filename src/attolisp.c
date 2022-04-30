@@ -853,7 +853,9 @@ static al_object_t* al_handle_defun(
 
 static al_object_t* al_primitive_defun(
     void *root, al_object_t **env, al_object_t **list
-){}
+){
+    return al_handle_defun(root, env, list, ATTOLISP_TYPE_FUNCTION);
+}
 
 static al_object_t* al_primitive_define(
     void *root, al_object_t **env, al_object_t **list
