@@ -255,9 +255,15 @@ static al_object_t* al_new_function(
     return result;
 }
 
+// *****
 static al_object_t* al_new_env(
     void *root, al_object_t **vars, al_object_t **up
 ){
+    al_object_t* result = al_alloc(
+        root, ATTOLISP_TYPE_ENV, sizeof(al_object_t*)*2);
+    result->vars = *vars;
+    result->up = *up;
+    return result;
 }
 
 static al_object_t* al_acons(
