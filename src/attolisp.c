@@ -2,6 +2,7 @@
 #include<stdint.h>
 #include<stdlib.h>
 #include<ctype.h>
+#include<string.h>
 #include<stdarg.h>
 #include<assert.h>
 #include<stdio.h>
@@ -61,14 +62,42 @@ static size_t _al_hash(const unsigned char *data){
     return index;
 }
 
+/**
+ * @brief Create a new node for an AttoLisp symbol and return it.
+ * 
+ * If the symbol exist already, just return it.
+ * 
+ * @param data 
+ * @return const char* 
+ */
+static const char* _al_intern_string(const char *data){
+    typedef struct Node{
+        struct Node *next;
+        char data[];
+    } Node_t;
+    static Node_t *nodes[AL_HASHMAP_SIZE] = {0};
+    size_t index = _al_hash((const unsigned char*)data) % AL_HASHMAP_SIZE;
+    for(Node_t *node = nodes[index]; node != NULL; node = node->next){
+        if(strcmp(node->data, data) == 0){ // symbol exist already
+            return node->data;
+        }
+    }
+    // data is a new symbol
+    size_t size = strlen(data) + 1;
+    Node_t *node = malloc(sizeof(*node) + size);
+    memcpy(node->data, data, size);
+    node->next = nodes[index];
+    nodes[index] = node;
+    return node->data;
+}
+
+
 static al_object_t* _al_read_list(FILE *stream, const char *text);
 static al_object_t* _al_read_object(FILE *stream, const char *text);
 static al_object_t* _al_read(FILE *stream);
 static void _al_print(al_object_t *object);
 static al_object_t* _al_eval(al_object_t *env, al_object_t *object);
 
-
-static const char* _al_intern_string(const char *data);
 static bool _al_match_number(const char *data);
 static const char* _al_num_to_string(long num);
 static al_object_t* _al_new_function(al_function_t fn);
