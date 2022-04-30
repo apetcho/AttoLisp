@@ -449,8 +449,12 @@ static void al_print(al_object_t *object){
     } // end switch
 }
 
-
-static int al_length(al_object_t *list){}
+// *****
+static int al_length(al_object_t *list){
+    int len = 0;
+    for(; list->type == ATTOLISP_TYPE_CELL; list = list->cdr){ len++; }
+    return list == al_nil ? len : -1;
+}
 
 // -------------
 //  Evaluator
