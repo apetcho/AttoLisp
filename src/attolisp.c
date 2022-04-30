@@ -207,7 +207,12 @@ static void attolisp_gc(void *root){
 // ***********************
 //      CONSTRUCTORS
 // ***********************
-static al_object_t* al_new_int(void *root, int value){}
+static al_object_t* al_new_int(void *root, int value){
+    al_object_t *result = al_alloc(root, ATTOLISP_TYPE_INT, sizeof(int));
+    result->value = value;
+    return result;
+}
+
 static al_object_t* al_new_cons(
     void *root, al_object_t *car, al_object_t *cdr
 ){}
