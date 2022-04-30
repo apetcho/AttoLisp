@@ -58,9 +58,9 @@ static al_object_t *al_lparen = &(al_object_t){ ATTOLISP_TYPE_LPAREN };
 static al_object_t *al_symbols;
 
 // ---
-static void *_al_memory;
-static void *_al_from;
-static size_t *_al_mem_used = 0;
+static void *al_memory;
+static void *al_from;
+static size_t *al_mem_used = 0;
 // GC flags
 static bool al_gc_running = false;
 static bool al_gc_debug = false;
@@ -77,8 +77,14 @@ static void al_error(const char *fmt, ...){
 }
 
 static void attolisp_gc(void *root);
-static inline size_t _al_round_up(size_t var, size_t size);
-static al_object_t* _al_alloc(void *root, int type, size_t size);
+
+// *****
+static inline size_t al_round_up(size_t var, size_t size){
+    return (var + size - 1) & ~(size - 1);
+}
+
+
+static al_object_t* al_alloc(void *root, int type, size_t size);
 
 // -------------------------------
 // ----- GARBAGE COLLECTOR -------
