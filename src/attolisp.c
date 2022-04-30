@@ -135,8 +135,16 @@ static inline al_object_t* al_forward(al_object_t *object){
     return pointer;
 }
 
+// *****
+static void* al_alloc_semispace(){
+    return mmap(
+        NULL, ATTOLISP_MEMSIZE,
+        PROT_READ | PROT_WRITE,
+        MAP_PRIVATE | MAP_ANON,
+        -1, 0
+    );
+}
 
-static void* al_alloc_semispace();
 static void al_forward_root_objects(void *root);
 
 // ---- implemenation of al_gc
