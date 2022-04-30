@@ -521,6 +521,13 @@ al_object_t* al_pairp(al_object_t *object){
     return (object->car!=NULL && object->car->tag==AL_TAG_CONS)? al_true : NULL;
 }
 
+
+al_object_t* al_nullp(al_object_t *object){
+    return (object->car == NULL) ? al_true : NULL;
+}
+
+
+
 void al_gc_init(void);
 al_object_t* al_gc_alloc(al_tag_t tag, al_object_t *car, al_object_t *cdr){}
 void al_gc_protect(al_object_t **root, ...){}
@@ -530,8 +537,6 @@ void al_gc_collect(void){}
 
 // ---
 
-
-al_object_t* al_nullp(al_object_t *object){}
 al_object_t* al_sum(al_object_t *object){}
 al_object_t* al_sub(al_object_t *object){}
 al_object_t* al_mul(al_object_t *object){}
