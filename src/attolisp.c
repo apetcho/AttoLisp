@@ -93,6 +93,22 @@ static const char* _al_intern_string(const char *data){
 }
 
 /**
+ * @brief Test whether a symbol is a number
+ * 
+ * @param data 
+ * @return true 
+ * @return false 
+ */
+static bool _al_is_number(const char *data){
+    if(*data == '-' || *data == '+'){ data++;}
+    do{
+        if(*data < '0' || *data > '9'){ return false; }
+    }while(*++data != '\0');
+
+    return true;
+}
+
+/**
  * @brief Return a a string representation of a number
  * 
  * @param num 
@@ -123,16 +139,26 @@ static const char* _al_num_to_string(long num){
     return _al_intern_string(buffer);
 }
 
+/**
+ * @brief 
+ * 
+ * @param data 
+ * @return al_object_t 
+ */
+static al_object_t _al_new_atom(const char *data){
+
+}
+
 static al_object_t* _al_read_list(FILE *stream, const char *text);
 static al_object_t* _al_read_object(FILE *stream, const char *text);
 static al_object_t* _al_read(FILE *stream);
 static void _al_print(al_object_t *object);
 static al_object_t* _al_eval(al_object_t *env, al_object_t *object);
 
-static bool _al_match_number(const char *data);
+
 
 static al_object_t* _al_new_function(al_function_t fn);
-static al_object_t _al_new_atom(const char *data);
+
 static al_object_t* _al_new_cons(al_object_t *env, al_object_t *object);
 static const char* _al_read_token(FILE *stream);
 static bool _al_equal(const al_object_t *a, const al_object_t *b);
