@@ -145,7 +145,15 @@ static void* al_alloc_semispace(){
     );
 }
 
-static void al_forward_root_objects(void *root);
+// *****
+static void al_forward_root_objects(void *root){
+    al_symbols = al_forward(al_symbols);
+    for(void **frame = root; frame; frame = *(void***)frame){
+        for(int i=1; frame[i] != AL_ROOT_END; i++){
+            if(frame[i]){ frame[i] = al_forward(frame[i]); }
+        }
+    }
+}
 
 // ---- implemenation of al_gc
 static void attolisp_gc(void *root){}
