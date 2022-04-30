@@ -204,8 +204,23 @@ static const char* _al_read_token(FILE *stream){
     return _al_intern_string(al_token);
 }
 
+
+/**
+ * @brief 
+ * 
+ * @param stream 
+ * @param text 
+ * @return al_object_t* 
+ */
+static al_object_t* _al_read_object(FILE *stream, const char *token){
+    if(token[0] != '('){
+        return _al_new_atom(token);
+    }else{
+        return _al_read_list(stream, _al_read_token(stream));
+    }
+}
+
 static al_object_t* _al_read_list(FILE *stream, const char *text);
-static al_object_t* _al_read_object(FILE *stream, const char *text);
 static al_object_t* _al_read(FILE *stream);
 static void _al_print(al_object_t *object);
 static al_object_t* _al_eval(al_object_t *env, al_object_t *object);
