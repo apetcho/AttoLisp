@@ -298,7 +298,17 @@ static al_object_t* al_reverse(al_object_t *list){
     return result;
 }
 
-static void al_skip_line(void){}
+// *****
+static void al_skip_line(void){
+    while(1){
+        int c = getchar();
+        if(c == EOF || c == '\n'){ return; }
+        if(c == '\r'){
+            if(al_peek() == '\n'){ getchar(); }
+            return;
+        }
+    }
+}
 
 static al_object_t* al_read_list(void *root){}
 
