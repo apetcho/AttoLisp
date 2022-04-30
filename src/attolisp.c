@@ -548,6 +548,14 @@ al_object_t* al_sub(al_object_t *object){
     return _al_new_atom(_al_num_to_string(sub));
 }
 
+al_object_t* al_mul(al_object_t *object){
+    long mul = 1;
+    for(; object != NULL; object = object->cdr){
+        mul *= atol(AL_TEXT(object->car));
+    }
+    return _al_new_atom(_al_num_to_string(mul));
+}
+
 
 void al_gc_init(void);
 al_object_t* al_gc_alloc(al_tag_t tag, al_object_t *car, al_object_t *cdr){}
@@ -558,7 +566,6 @@ void al_gc_collect(void){}
 
 // ---
 
-al_object_t* al_mul(al_object_t *object){}
 al_object_t* al_print(al_object_t *object){}
 al_object_t* al_newline(al_object_t *object){}
 al_object_t* al_read(al_object_t *object){}
