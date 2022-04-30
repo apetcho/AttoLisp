@@ -598,11 +598,30 @@ void al_gc_copy(al_object_t **root){
     }
 }
 
+void al_gc_collect(void){
+    al_object_t *tmp = al_gc.from;
+    al_gc.from = al_gc.to;
+    al_gc.to = tmp;
+    al_gc.allocptr = al_gc.from;
+    al_gc.scanptr = al_gc.from;
+    for(size_t i=0; i < al_gc.nroots; ++i){
+        al_gc_copy(roots[i]);
+    }
+    for(; al_gc.scanptr < al_gc.allocptr; ++al_gc.scanptr){
+        if(al_gc.scanptr->tag == AL_TAG_CONS ||
+            al_gc.scanptr->tag == AL_TAG_LAMBDA
+        ){
+            al_gc_copy(&(al_gc.scanptr->car));
+            al_gc_copy(&(al_gc.scanptr->cdr));
+        }
+    }
+}
+
 void al_gc_init(void);
 al_object_t* al_gc_alloc(al_tag_t tag, al_object_t *car, al_object_t *cdr){}
 void al_gc_protect(al_object_t **root, ...){}
 void al_gc_pop(void){}
-void al_gc_collect(void){}
+
 
 // ---
 
