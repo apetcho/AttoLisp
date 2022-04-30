@@ -656,10 +656,16 @@ static al_object_t* al_primitive_quote(
     return (*list)->car;
 }
 
-
+// *****
 static al_object_t* al_primitive_cons(
     void *root, al_object_t **env, al_object_t **list
-){}
+){
+    if(al_length(*list) != 2){ al_error("Malformed cons"); }
+    al_object_t *cell = al_eval_list(root, env, list);
+    cell->cdr = cell->cdr->car;
+
+    return cell;
+}
 
 static al_object_t* al_primitive_car(
     void *root, al_object_t **env, al_object_t **list
