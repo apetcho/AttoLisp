@@ -370,7 +370,21 @@ static int al_read_number(int value){
     return value;
 }
 
-static al_object_t* al_read_symbol(void *root, char c){}
+// *****
+static al_object_t* al_read_symbol(void *root, char c){
+    char buffer[ATTOLISP_MAXLEN+1];
+    buffer[0] = c;
+    int len = 1;
+    while(isalnum(al_peek())|| strchr(al_symbol_chars, al_peek())){
+        if(ATTOLISP_MAXLEN <= len){
+            al_error("ERROR: Symbol name too long");
+        }
+        buffer[len++] = getchar();
+    }
+    buffer[len] = '\0';
+    return al_intern(root, buffer);
+}
+
 
 static al_object_t* al_read_expr(void *root){}
 
