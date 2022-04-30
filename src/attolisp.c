@@ -985,7 +985,10 @@ static al_object_t* al_define_primitives(void *root, al_object_t **env){
 // --------------------------
 //          ENTRY POINT
 // --------------------------
-static bool al_getenv_flag(char *name){}
+static bool al_getenv_flag(char *name){
+    char *value = getenv(name);
+    return value && value[0];
+}
 
 // *********************************
 // ---- M A I N    D R I V E R -----
