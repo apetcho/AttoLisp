@@ -958,7 +958,28 @@ static void al_define_constants(void *root, al_object_t **env){
     al_add_variable(root, env, symbol, &al_true);
 }
 
-static al_object_t* al_define_primitives(void *root, al_object_t **env){}
+static al_object_t* al_define_primitives(void *root, al_object_t **env){
+    al_add_primitive(root, env, "quote", al_primitive_quote);
+    al_add_primitive(root, env, "cons", al_primitive_cons);
+    al_add_primitive(root, env, "car", al_primitive_car);
+    al_add_primitive(root, env, "cdr", al_primitive_cdr);
+    al_add_primitive(root, env, "setq", al_primitive_setq);
+    al_add_primitive(root, env, "setcar", al_primitive_setcar);
+    al_add_primitive(root, env, "while", al_primitive_while);
+    al_add_primitive(root, env, "gensym", al_primitive_gensym);
+    al_add_primitive(root, env, "+", al_primitive_plus);
+    al_add_primitive(root, env, "-", al_primitive_minus);
+    al_add_primitive(root, env, "<", al_primitive_lt);
+    al_add_primitive(root, env, "define", al_primitive_define);
+    al_add_primitive(root, env, "defun", al_primitive_defun);
+    al_add_primitive(root, env, "defmacro", al_primitive_defmacro);
+    al_add_primitive(root, env, "macroexpand", al_primitive_macroexpand);
+    al_add_primitive(root, env, "lambda", al_primitive_lambda);
+    al_add_primitive(root, env, "if", al_primitive_if);
+    al_add_primitive(root, env, "=", al_primitive_number_eq);
+    al_add_primitive(root, env, "eq", al_primitive_eq);
+    al_add_primitive(root, env, "println", al_primitive_println);
+}
 
 
 // --------------------------
