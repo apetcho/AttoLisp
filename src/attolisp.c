@@ -31,7 +31,7 @@ static const char *AL_DEFINE = NULL;
 // ----- other global variables -------
 static char al_token[AL_MAX_TOKEN];
 static int al_token_peek = 0;
-static al_object_t *al_atom =NULL;
+static al_object_t *al_true =NULL;
 static al_object_t *heap;
 static al_object_t *tospace;
 static al_object_t *fromspace;
@@ -514,9 +514,12 @@ al_object_t* al_equalp(al_object_t *object){
     for(object = object->cdr; object != NULL; object = object->cdr){
         if(!_al_equal(cmp, object->car)){ return NULL; }
     }
-    return al_atom;
+    return al_true;
 }
 
+al_object_t* al_pairp(al_object_t *object){
+    return (object->car!=NULL && object->car->tag==AL_TAG_CONS)? al_true : NULL;
+}
 
 void al_gc_init(void);
 al_object_t* al_gc_alloc(al_tag_t tag, al_object_t *car, al_object_t *cdr){}
@@ -527,7 +530,7 @@ void al_gc_collect(void){}
 
 // ---
 
-al_object_t* al_pairp(al_object_t *object){}
+
 al_object_t* al_nullp(al_object_t *object){}
 al_object_t* al_sum(al_object_t *object){}
 al_object_t* al_sub(al_object_t *object){}
