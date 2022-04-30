@@ -538,12 +538,21 @@ static bool al_is_list(al_object_t *object){
     return object == al_nil || object->type == ATTOLISP_TYPE_CELL;
 }
 
+// *****
 static al_object_t* al_apply_callback(
     void *root,
     al_object_t **env,
     al_object_t **callback,
     al_object_t **args
-){}
+){
+    AL_DEFINE3(params, newEnv, body);
+    *params = (*callback)->params;
+    *newEnv = (*callback)->env;
+    *newEnv = al_push_env(root, newEnv, params, args);
+    *body = (*callback)->body;
+
+    return al_progn(root, newEnv, body);
+}
 
 static al_object_t* al_apply(
     void *root,
