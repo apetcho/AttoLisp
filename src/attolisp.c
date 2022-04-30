@@ -575,7 +575,18 @@ static al_object_t* al_apply(
     al_error("ERROR:: not supported");
 }
 
-static al_object_t* al_find(al_object_t **env, al_object_t *sym){}
+// *****
+static al_object_t* al_find(al_object_t **env, al_object_t *sym){
+    for(al_object_t *pointer = *env; pointer != al_nil; pointer = pointer->up){
+        for(al_object_t *cell=pointer->vars; cell!=al_nil; cell=cell->cdr){
+            al_object_t *bind = cell->car;
+            if(sym == bind->car){ return bind; }
+        }
+    }
+
+    return NULL;
+}
+
 
 static al_object_t* al_macroexpand(
     void *root,
