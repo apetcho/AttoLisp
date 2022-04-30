@@ -533,7 +533,10 @@ static al_object_t* al_eval_list(
     return al_reverse(*head);
 }
 
-static bool al_is_list(al_object_t *object){}
+// *****
+static bool al_is_list(al_object_t *object){
+    return object == al_nil || object->type == ATTOLISP_TYPE_CELL;
+}
 
 static al_object_t* al_apply_callback(
     void *root,
