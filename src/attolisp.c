@@ -268,7 +268,11 @@ static al_object_t* al_new_env(
 
 static al_object_t* al_acons(
     void *root, al_object_t **x, al_object_t **y, al_object_t **a
-){}
+){
+    AL_DEFINE1(cell);
+    *cell = al_new_cons(root, x, y);
+    return al_new_cons(root, cell, a);
+}
 
 // ---
 const char al_symbol_chars[] = "~!@#$%^*-_=+:/?<>";
