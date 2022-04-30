@@ -253,8 +253,23 @@ static al_object_t* _al_read_list(FILE *stream, const char *text){
     return obj2;
 }
 
+/**
+ * @brief Read an object from stream
+ * 
+ * @param stream 
+ * @return al_object_t* 
+ */
+static al_object_t* _al_read(FILE *stream){
+    const char *token = _al_read_token(stream);
+    if(token == NULL){ return NULL; }
+    if(token[0] != ")"){
+        return _al_read_object(stream, token);
+    }
+    fputs("ERROR: Unexpected ')'\n", stderr);
+    return NULL;
+}
 
-static al_object_t* _al_read(FILE *stream);
+
 static void _al_print(al_object_t *object);
 static al_object_t* _al_eval(al_object_t *env, al_object_t *object);
 
