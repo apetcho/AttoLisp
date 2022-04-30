@@ -140,6 +140,16 @@ static const char* _al_num_to_string(long num){
 }
 
 /**
+ * @brief Allocate a slot on the heap for a function
+ * 
+ * @param fn 
+ * @return al_object_t* 
+ */
+static al_object_t* _al_new_function(al_function_t fn){
+    return al_gc_alloc(AL_TAG_FUNCTION, (al_object_t*)fn, NULL);
+}
+
+/**
  * @brief 
  * 
  * @param data 
@@ -154,11 +164,6 @@ static al_object_t* _al_read_object(FILE *stream, const char *text);
 static al_object_t* _al_read(FILE *stream);
 static void _al_print(al_object_t *object);
 static al_object_t* _al_eval(al_object_t *env, al_object_t *object);
-
-
-
-static al_object_t* _al_new_function(al_function_t fn);
-
 static al_object_t* _al_new_cons(al_object_t *env, al_object_t *object);
 static const char* _al_read_token(FILE *stream);
 static bool _al_equal(const al_object_t *a, const al_object_t *b);
