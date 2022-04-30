@@ -289,11 +289,25 @@ static bool _al_equal(const al_object_t *a, const al_object_t *b){
     return _al_equal(a->car, b->car) && _al_equal(a->cdr, b->cdr);
 }
 
+/**
+ * @brief Test a whether an object is in a list.
+ * 
+ * @param object 
+ * @param list 
+ * @return al_object_t* 
+ */
+static al_object_t* _al_find_pair(al_object_t *object, al_object_t *list){
+    for(; list != NULL; list = list->cdr){
+        if(list->car != NULL && _al_equal(object, list->car->car)){
+            return list->car;
+        }
+    }
+
+    return NULL;
+}
+
 static void _al_print(al_object_t *object);
 static al_object_t* _al_eval(al_object_t *env, al_object_t *object);
-
-
-static al_object_t* _al_find_pair(al_object_t object, al_object_t *list);
 static al_object_t* _al_lookup_env(al_object_t *object, al_object_t *list);
 static al_object_t* _al_set_env(
     al_object_t *env, al_object_t *key, al_object_t *val);
