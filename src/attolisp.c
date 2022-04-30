@@ -688,9 +688,25 @@ static al_object_t* al_primitive_cdr(
     return args->car->cdr;
 }
 
+// *****
 static al_object_t* al_primitive_setq(
     void *root, al_object_t **env, al_object_t **list
-){}
+){
+    if(al_length(*list) != 2 || (*list)->car->type != ATTOLISP_TYPE_SYMBOL){
+        al_error("Malformed setq");
+    }
+
+    AL_DEFINE2(bind, value);
+    *bind = al_find(env, (*list)->car);
+    if(!*bind){
+        al_error("ERROR: Unbound variable %s", (*list)->car->name);
+    }
+    *value = (*list)->cdr->car;
+    *value = al_eval(root, env, value);
+    (*bind)->cdr = *value;
+
+    return *value;
+}
 
 static al_object_t* al_primitive_setcar(
     void *root, al_object_t **env, al_object_t **list
