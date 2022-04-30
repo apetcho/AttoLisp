@@ -34,13 +34,13 @@
     al_object_t **var2 = (al_object_t**)(_RootBucket + 2)
 
 
-#define AL_DEFINE2(var1, var2, var3)                            \
+#define AL_DEFINE3(var1, var2, var3)                            \
     AL_ADD_ROOT(2);                                             \
     al_object_t **var1 = (al_object_t**)(_RootBucket + 1);      \
     al_object_t **var2 = (al_object_t**)(_RootBucket + 2);      \
     al_object_t **var3 = (al_object_t**)(_RootBucket + 3)
 
-#define AL_DEFINE2(var1, var2, var3)                            \
+#define AL_DEFINE4(var1, var2, var3, var4)                      \
     AL_ADD_ROOT(2);                                             \
     al_object_t **var1 = (al_object_t**)(_RootBucket + 1);      \
     al_object_t **var2 = (al_object_t**)(_RootBucket + 2);      \
@@ -310,7 +310,31 @@ static void al_skip_line(void){
     }
 }
 
-static al_object_t* al_read_list(void *root){}
+// *****
+static al_object_t* al_read_list(void *root){
+    AL_DEFINE3(object, head, last);
+    *head = al_nil;
+    while(1){
+        *object = al_read_expr(root);
+        if(!*object){
+            al_error("Unclosed parenthesis");
+        }
+        if(*object = al_lparen){
+            return al_reverse(*head);
+        }
+        if(*object = al_dot){
+            *last = al_read_expr(root);
+            if(al_read_expr(root) != al_lparen){
+                al_error("Closed parenthesis expected after dot");
+            }
+            al_object_t *result = al_reverse(*head);
+            (*head)->cdr = *last;
+            return result;
+        }
+        *head = al_new_cons(root, object, head);
+    }
+}
+
 
 static al_object_t* al_intern(void *root, char *name);
 
