@@ -462,6 +462,36 @@ AGAIN:
     return NULL;
 }
 
-static void _al_print(al_object_t *object);
+/**
+ * @brief Print the string representation of object to the stdout.
+ * 
+ * @param object 
+ */
+static void _al_print(al_object_t *object){
+    if(object == NULL){ fputs("()", stdout); }
+    else if(object->tag == AL_TAG_ATOM){
+        fputs(AL_TEXT(object), stdout);
+    }else if(object->tag == AL_TAG_FUNCTION){
+        printf("<C@%p>", (void*)object);
+    }else if(object->tag == AL_TAG_LAMBDA){
+        fputs("<lambda ", stdout);
+        _al_print(object->car);
+        fputs(">", stdout);
+    }else if(object->tag == AL_TAG_CONS){
+        fputs("(", stdout);
+        while(1){
+            _al_print(object->car);
+            if(object->cdr == NULL){ break; }
+            fputs(" ", stdout);
+            if(object->cdr->tag != AL_TAG_CONS){
+                fputs(". ", stdout);
+                _al_print(object->cdr);
+                break;
+            }
+            object = object->cdr;
+        }
+        fputs(")", stdout);
+    }
+}
 
 
