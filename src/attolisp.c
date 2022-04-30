@@ -571,11 +571,37 @@ al_object_t* al_read(al_object_t *object){
     return _al_read(stdin);
 }
 
+// ----
+static void _al_defun(al_object_t *env, const char *name, al_function_t fn){
+    al_object_t *key = NULL;
+    al_object_t *value = NULL;
+    al_gc_protect(&env, &key, &value, NULL);
+    key = _al_new_atom(name);
+    value = _al_new_function(fn);
+    _al_set_env(env, key, value);
+    al_gc_pop();
+}
+
+// ----------------------------
+// ---- Garbage collector -----
+// ----------------------------
+void al_gc_copy(al_object_t **root){
+    if(*root == NULL){ return; }
+    if((*root)->car == &al_marker){
+        *root = (*root)->cdr;
+    }else if(*root < al_gc.from || *root >= (al_gc.from + AL_HEAPSIZE)){
+        al_object_t *ptr = al_gc.allocptr++;
+        memcpy(ptr, *root, sizeof(al_object_t));
+        (*root)->car = &al_marker;
+        (*root)->cdr = ptr;
+        *root = ptr;
+    }
+}
+
 void al_gc_init(void);
 al_object_t* al_gc_alloc(al_tag_t tag, al_object_t *car, al_object_t *cdr){}
 void al_gc_protect(al_object_t **root, ...){}
 void al_gc_pop(void){}
-void al_gc_copy(al_object_t **root){}
 void al_gc_collect(void){}
 
 // ---
