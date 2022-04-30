@@ -476,12 +476,35 @@ static void al_add_variable(
     (*env)->vars = *tmp;
 }
 
+// *****
 static al_object_t* al_push_env(
     void *root,
     al_object_t **env,
     al_object_t **vars,
     al_object_t **values
-){}
+){
+    AL_DEFINE3(map, symbol, value);
+    *map = al_nil;
+    for(; (*vars)->type == ATTOLISP_TYPE_CELL;
+        *vars = (*vars)->cdr, *values = (*values)->cdr
+    ){
+        if((*values)->type != ATTOLISP_TYPE_CELL){
+            al_error(
+                "ERROR: Cannot apply function: number of argument does "
+                "match"
+            );
+        }
+        *symbol = (*vars)->car;
+        *value = (*values)->car;
+        *map = al_acons(root, symbol, value, map);
+    }
+    if(*vars != al_nil){
+        *map = al_acons(root, vars, values, map);
+    }
+
+    return al_new_env(root, map, env);
+}
+
 
 static al_object_t* al_progn(
     void *root,
