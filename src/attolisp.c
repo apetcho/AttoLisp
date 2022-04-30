@@ -89,8 +89,39 @@ static const char* _al_intern_string(const char *data){
     node->next = nodes[index];
     nodes[index] = node;
     return node->data;
+    //! @note Who is managing the heap allocated memory ?
 }
 
+/**
+ * @brief Return a a string representation of a number
+ * 
+ * @param num 
+ * @return const char* 
+ */
+static const char* _al_num_to_string(long num){
+    char buffer[AL_MAX_TOKEN];
+    char reversed[AL_MAX_TOKEN];
+
+    char *cursor1 = buffer;
+    char *cursor2 = reversed;
+    unsigned long value = (unsigned long)num;
+    if(num < 0){            // if num is negative
+        *cursor1++ = '-';   // make sure the '-' is not forgotten
+        value = ~value +1;  // and make sure the last bit of value is toggled.
+    }
+    // Extract the digits and push them onto stack
+    do{
+        *cursor2++ = (char)(value % 10) + '0';
+        value /= 10;
+    }while(value > 0);
+    // Get the digits from the stack and place the in the buffer
+    do{
+        *cursor1 = *--cursor2;
+    }while(cursor2 != reversed);
+    // a string is properly define if NULL-terminated
+    *cursor1 = '\0';
+    return _al_intern_string(buffer);
+}
 
 static al_object_t* _al_read_list(FILE *stream, const char *text);
 static al_object_t* _al_read_object(FILE *stream, const char *text);
@@ -99,7 +130,7 @@ static void _al_print(al_object_t *object);
 static al_object_t* _al_eval(al_object_t *env, al_object_t *object);
 
 static bool _al_match_number(const char *data);
-static const char* _al_num_to_string(long num);
+
 static al_object_t* _al_new_function(al_function_t fn);
 static al_object_t _al_new_atom(const char *data);
 static al_object_t* _al_new_cons(al_object_t *env, al_object_t *object);
