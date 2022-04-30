@@ -306,9 +306,26 @@ static al_object_t* _al_find_pair(al_object_t *object, al_object_t *list){
     return NULL;
 }
 
+/**
+ * @brief Search for an object in a given environment
+ * 
+ * @param object 
+ * @param list 
+ * @return al_object_t* 
+ */
+static al_object_t* _al_lookup_env(al_object_t *object, al_object_t *list){
+    for(al_object_t *pair; list != NULL; list = list->cdr){
+        if((pair = _al_find_pair(object, list->car)) != NULL){
+            return pair->cdr;
+        }
+    }
+
+    return NULL;
+}
+
+
 static void _al_print(al_object_t *object);
 static al_object_t* _al_eval(al_object_t *env, al_object_t *object);
-static al_object_t* _al_lookup_env(al_object_t *object, al_object_t *list);
 static al_object_t* _al_set_env(
     al_object_t *env, al_object_t *key, al_object_t *val);
 static al_object_t* _al_new_env(al_object_t*env);
