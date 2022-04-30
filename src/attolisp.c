@@ -505,11 +505,18 @@ static al_object_t* al_push_env(
     return al_new_env(root, map, env);
 }
 
-
+// *****
 static al_object_t* al_progn(
-    void *root,
-    al_object_t **env, al_object_t **list
-){}
+    void *root, al_object_t **env, al_object_t **list
+){
+    AL_DEFINE2(pointer, result);
+    for(*pointer = *list; *pointer != al_nil; *pointer = (*pointer)->cdr){
+        *result = (*pointer)->car;
+        *result = al_eval(root, env, result);
+    }
+
+    return *result;
+}
 
 static al_object_t* al_eval_list(
     void *root,
