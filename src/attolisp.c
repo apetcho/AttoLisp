@@ -680,7 +680,13 @@ static al_object_t* al_primitive_car(
 
 static al_object_t* al_primitive_cdr(
     void *root, al_object_t **env, al_object_t **list
-){}
+){
+    al_object_t *args = al_eval_list(root, env, list);
+    if(args->car->type != ATTOLISP_TYPE_CELL || args->cdr != al_nil){
+        al_error("Malformed car");
+    }
+    return args->car->cdr;
+}
 
 static al_object_t* al_primitive_setq(
     void *root, al_object_t **env, al_object_t **list
