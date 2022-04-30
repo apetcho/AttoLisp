@@ -587,12 +587,24 @@ static al_object_t* al_find(al_object_t **env, al_object_t *sym){
     return NULL;
 }
 
-
+// *****
 static al_object_t* al_macroexpand(
     void *root,
     al_object_t **env,
     al_object_t **object
-){}
+){
+    if((*object)->type != ATTOLISP_TYPE_CELL ||
+        (*object)->car->type != ATTOLISP_TYPE_SYMBOL
+    ){ return *object; }
+    AL_DEFINE3(bind, macro, args);
+    *bind = al_find(env, (*object)->car);
+    if(!*bind || (*bind)->cdr->type != ATTOLISP_TYPE_MACRO){
+        return *object;
+    }
+    *macro = (*bind)->cdr;
+    *args = (*object)->cdr;
+    return al_apply_callback(root, env, macro, args);
+}
 
 static al_object_t* al_eval(
     void *root,
