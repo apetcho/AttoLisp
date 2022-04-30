@@ -651,7 +651,10 @@ static al_object_t* al_eval(
 // ------------------------------------------------------------------
 static al_object_t* al_primitive_quote(
     void *root, al_object_t **env, al_object_t **list
-){}
+){
+    if(al_length(*list) != 1){ al_error("Malformed quote");}
+    return (*list)->car;
+}
 
 
 static al_object_t* al_primitive_cons(
