@@ -943,7 +943,7 @@ static al_object_t* al_primitive_eq(
     return values->car == values->cdr->car ? al_true : al_nil;
 }
 
-static al_object_t* al_add_primitive(
+static void al_add_primitive(
     void *root, al_object_t **env, char *name, al_primitive_t fn
 ){
     AL_DEFINE2(symbol, primitive);
@@ -952,7 +952,11 @@ static al_object_t* al_add_primitive(
     al_add_variable(root, env, symbol, primitive);
 }
 
-static al_object_t* al_define_constants(void *root, al_object_t **env){}
+static void al_define_constants(void *root, al_object_t **env){
+    AL_DEFINE1(symbol);
+    *symbol = al_intern(root, "t");
+    al_add_variable(root, env, symbol, &al_true);
+}
 
 static al_object_t* al_define_primitives(void *root, al_object_t **env){}
 
