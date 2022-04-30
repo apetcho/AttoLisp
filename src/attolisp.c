@@ -412,7 +412,43 @@ static al_object_t* al_read_expr(void *root){
     }
 }
 
-static void al_print(al_object_t *object){}
+// *****
+static void al_print(al_object_t *object){
+    switch(object->type){
+    case ATTOLISP_TYPE_CELL:
+        printf("(");
+        while(1){
+            printf(object->car);
+            if(object->cdr == al_nil){ break; }
+            if(object->cdr->type != ATTOLISP_TYPE_CELL){
+                printf(" . ");
+                printf(object->cdr);
+                break;
+            }
+            printf(" ");
+            object = object->cdr;
+        }
+        printf(")");
+        return;
+#define AL_CASE(type, ...)      \
+    case type:                  \
+        printf(__VA_ARGS__);    \
+        return
+
+    AL_CASE(ATTOLISP_TYPE_INT, "%d", object->value);
+    AL_CASE(ATTOLISP_TYPE_SYMBOL, "%s", object->name);
+    AL_CASE(ATTOLISP_TYPE_PRIMITIVE, "<primitive>");
+    AL_CASE(ATTOLISP_TYPE_FUNCTION, "<function>");
+    AL_CASE(ATTOLISP_TYPE_MACRO, "<macro>");
+    AL_CASE(ATTOLISP_TYPE_MOVED, "<moved>");
+    AL_CASE(ATTOLISP_TYPE_TRUE, "t");
+    AL_CASE(ATTOLISP_TYPE_NIL, "()");
+#undef AL_CASE
+        default:
+            al_error("ERROR:: print: Unknown tag type: %d", object->type);
+    } // end switch
+}
+
 
 static int al_length(al_object_t *list){}
 
