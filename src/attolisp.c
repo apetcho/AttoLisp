@@ -874,7 +874,9 @@ static al_object_t* al_primitive_define(
 
 static al_object_t* al_primitive_defmacro(
     void *root, al_object_t **env, al_object_t **list
-){}
+){
+    return al_handle_defun(root, env, list, ATTOLISP_TYPE_MACRO);
+}
 
 
 static al_object_t* al_primitive_macroexpand(
