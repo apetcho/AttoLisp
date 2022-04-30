@@ -494,4 +494,31 @@ static void _al_print(al_object_t *object){
     }
 }
 
+// -------------------------------------------------------------------------
+//                  B U I L T I N    A P I
+// -------------------------------------------------------------------------
+al_object_t* al_car(al_object_t *object){
+    return object->car->car;
+}
 
+void al_gc_init(void);
+al_object_t* al_gc_alloc(al_tag_t tag, al_object_t *car, al_object_t *cdr){}
+void al_gc_protect(al_object_t **root, ...){}
+void al_gc_pop(void){}
+void al_gc_copy(al_object_t **root){}
+void al_gc_collect(void){}
+
+// ---
+
+
+al_object_t* al_cdr(al_object_t *object){}
+al_object_t* al_cons(al_object_t *object){}
+al_object_t* al_equalp(al_object_t *object){}
+al_object_t* al_pairp(al_object_t *object){}
+al_object_t* al_nullp(al_object_t *object){}
+al_object_t* al_sum(al_object_t *object){}
+al_object_t* al_sub(al_object_t *object){}
+al_object_t* al_mul(al_object_t *object){}
+al_object_t* al_print(al_object_t *object){}
+al_object_t* al_newline(al_object_t *object){}
+al_object_t* al_read(al_object_t *object){}
