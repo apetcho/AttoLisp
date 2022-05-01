@@ -16,7 +16,7 @@ enum{
 };
 
 struct al_object_t;
-typedef al_object_t* (*al_primitive_t)(
+typedef struct al_object_t* (*al_primitive_t)(
     void *root, struct al_object_t **env, struct al_object_t **args
 );
 

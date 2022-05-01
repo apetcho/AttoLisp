@@ -288,9 +288,9 @@ static int al_peek(void){
 
 static al_object_t* al_reverse(al_object_t *list){
     al_object_t *result = al_nil;
-    while(result != al_nil){
-        al_object_t *head = result;
-        result = result->cdr;
+    while(list != al_nil){
+        al_object_t *head = list;
+        list = list->cdr;
         head->cdr = result;
         result = head;
     }
@@ -319,10 +319,10 @@ static al_object_t* al_read_list(void *root){
         if(!*object){
             al_error("Unclosed parenthesis");
         }
-        if(*object = al_cparen){
+        if(*object == al_cparen){
             return al_reverse(*head);
         }
-        if(*object = al_dot){
+        if(*object == al_dot){
             *last = al_read_expr(root);
             if(al_read_expr(root) != al_cparen){
                 al_error("Closed parenthesis expected after dot");
@@ -338,7 +338,7 @@ static al_object_t* al_read_list(void *root){
 // *****
 static al_object_t* al_intern(void *root, char *name){
     for(al_object_t *pointer = al_symbols;
-        pointer = al_nil; pointer=pointer->cdr
+        pointer != al_nil; pointer=pointer->cdr
     ){
         if(strcmp(name, pointer->car->name) == 0){
             return pointer->car;
@@ -387,7 +387,7 @@ static al_object_t* al_read_symbol(void *root, char c){
 
 // *****
 static al_object_t* al_read_expr(void *root){
-    while(1){
+    for(;;){
         int c = getchar();
         if(c == ' ' || c == '\n' || c == '\r' || c == '\t'){ continue; }
         if(c == EOF){ return NULL; }
@@ -400,7 +400,7 @@ static al_object_t* al_read_expr(void *root){
         if(c == '.'){ return al_dot; }
         if(c == '\''){ return al_read_quote(root); }
         if(isdigit(c)){
-            return al_new_int(root, al_read_number(c-'c'));
+            return al_new_int(root, al_read_number(c-'0'));
         }
         if(c == '-' && isdigit(al_peek())){
             return al_new_int(root, -al_read_number(0));
@@ -414,15 +414,14 @@ static al_object_t* al_read_expr(void *root){
 
 // *****
 static void al_print(al_object_t *object){
-    switch(object->type){
-    case ATTOLISP_TYPE_CELL:
+    if(object->type == ATTOLISP_TYPE_CELL){
         printf("(");
-        while(1){
-            printf(object->car);
+        for(;;){
+            al_print(object->car);
             if(object->cdr == al_nil){ break; }
             if(object->cdr->type != ATTOLISP_TYPE_CELL){
                 printf(" . ");
-                printf(object->cdr);
+                al_print(object->cdr);
                 break;
             }
             printf(" ");
@@ -430,23 +429,73 @@ static void al_print(al_object_t *object){
         }
         printf(")");
         return;
-#define AL_CASE(type, ...)      \
-    case type:                  \
-        printf(__VA_ARGS__);    \
-        return
+    }
+    else if(object->type == ATTOLISP_TYPE_INT){
+        printf("%d", object->value);
+        return;
+    }
+    else if(object->type == ATTOLISP_TYPE_SYMBOL){
+        printf("%s", object->name);
+        return;
+    }
+    else if(object->type == ATTOLISP_TYPE_PRIMITIVE){
+        printf("%s", "<primitive>");
+    }
+    else if(object->type == ATTOLISP_TYPE_FUNCTION){
+        printf("%s", "<function>");
+        return;
+    }
+    else if(object->type == ATTOLISP_TYPE_MACRO){
+        printf("%s", "<macro>");
+        return;
+    }
+    else if(object->type == ATTOLISP_TYPE_MOVED){
+        printf("%s", "<moved>");
+        return;
+    }
+    else if(object->type == ATTOLISP_TYPE_TRUE){
+        printf("%s", "t");
+        return;
+    }else if(object->type == ATTOLISP_TYPE_NIL){
+        printf("%s", "()");
+        return;
+    }else{
+        al_error("ERROR:: print: Unknown tag type: %d", object->type);
+    }
 
-    AL_CASE(ATTOLISP_TYPE_INT, "%d", object->value);
-    AL_CASE(ATTOLISP_TYPE_SYMBOL, "%s", object->name);
-    AL_CASE(ATTOLISP_TYPE_PRIMITIVE, "<primitive>");
-    AL_CASE(ATTOLISP_TYPE_FUNCTION, "<function>");
-    AL_CASE(ATTOLISP_TYPE_MACRO, "<macro>");
-    AL_CASE(ATTOLISP_TYPE_MOVED, "<moved>");
-    AL_CASE(ATTOLISP_TYPE_TRUE, "t");
-    AL_CASE(ATTOLISP_TYPE_NIL, "()");
-#undef AL_CASE
-        default:
-            al_error("ERROR:: print: Unknown tag type: %d", object->type);
-    } // end switch
+//     switch(object->type){
+//     case ATTOLISP_TYPE_CELL:
+//         printf("(");
+//         for(;;){
+//             al_print(object->car);
+//             if(object->cdr == al_nil){ break; }
+//             if(object->cdr->type != ATTOLISP_TYPE_CELL){
+//                 printf(" . ");
+//                 al_print(object->cdr);
+//                 break;
+//             }
+//             printf(" ");
+//             object = object->cdr;
+//         }
+//         printf(")");
+//         return;
+// #define AL_CASE(type, ...)      \
+//     case type:                  \
+//         printf(__VA_ARGS__);    \
+//         return
+
+//     AL_CASE(ATTOLISP_TYPE_INT, "%d", object->value);
+//     AL_CASE(ATTOLISP_TYPE_SYMBOL, "%s", object->name);
+//     AL_CASE(ATTOLISP_TYPE_PRIMITIVE, "<primitive>");
+//     AL_CASE(ATTOLISP_TYPE_FUNCTION, "<function>");
+//     AL_CASE(ATTOLISP_TYPE_MACRO, "<macro>");
+//     AL_CASE(ATTOLISP_TYPE_MOVED, "<moved>");
+//     AL_CASE(ATTOLISP_TYPE_TRUE, "t");
+//     AL_CASE(ATTOLISP_TYPE_NIL, "()");
+// #undef AL_CASE
+//         default:
+//             al_error("ERROR:: print: Unknown tag type: %d", object->type);
+//     } // end switch
 }
 
 // *****
@@ -573,6 +622,7 @@ static al_object_t* al_apply(
         return al_apply_callback(root, env, callback, xargs);
     }
     al_error("ERROR:: not supported");
+    return al_nil; // never reached
 }
 
 // *****
@@ -611,20 +661,23 @@ static al_object_t* al_eval(
     void *root,
     al_object_t **env, al_object_t **object
 ){
+    al_object_t *result;
     switch((*object)->type){
     case ATTOLISP_TYPE_INT:
     case ATTOLISP_TYPE_PRIMITIVE:
     case ATTOLISP_TYPE_FUNCTION:
     case ATTOLISP_TYPE_TRUE:
     case ATTOLISP_TYPE_NIL:
-        return *object;
+        result = *object;
+        break;
     case ATTOLISP_TYPE_SYMBOL:{
         al_object_t *bind = al_find(env, *object);
         if(!bind){
             al_error("ERROR: Undefined symbol: %s", (*object)->name);
         }
-        return bind->cdr;
+        result = bind->cdr;
     }
+    break;
     case ATTOLISP_TYPE_CELL:{
         AL_DEFINE3(fn, expanded, args);
         *expanded = al_macroexpand(root, env, object);
@@ -637,12 +690,15 @@ static al_object_t* al_eval(
         if((*fn)->type != ATTOLISP_TYPE_PRIMITIVE &&
             (*fn)->type != ATTOLISP_TYPE_FUNCTION
         ){
-            return al_apply(root, env, fn, args);
+            result = al_apply(root, env, fn, args);
         }
     }
+    break;
     default:
         al_error("ERROR:: eval: Unknown tag type: %d\n", (*object)->type);
     }// end switch
+
+    return result; // never reached
 }
 
 
@@ -958,7 +1014,7 @@ static void al_define_constants(void *root, al_object_t **env){
     al_add_variable(root, env, symbol, &al_true);
 }
 
-static al_object_t* al_define_primitives(void *root, al_object_t **env){
+static void al_define_primitives(void *root, al_object_t **env){
     al_add_primitive(root, env, "quote", al_primitive_quote);
     al_add_primitive(root, env, "cons", al_primitive_cons);
     al_add_primitive(root, env, "car", al_primitive_car);
@@ -1003,13 +1059,16 @@ int main(int argc, char **argv){
     al_symbols = al_nil;
     void *root = NULL;
     AL_DEFINE2(env, expr);
-    *env = al_new_env(root, &al_nil, al_nil);
+    *env = al_new_env(root, &al_nil, &al_nil);
     al_define_constants(root, env);
     al_define_primitives(root, env);
 
     // main loop
     while(1){
+        puts("Reading input ...");
         *expr = al_read_expr(root);
+        printf("Input is: ");
+        al_print(*expr);
         if(!*expr){ return 0; }
         if(*expr == al_cparen){
             al_error("Stray close parenthesis");
