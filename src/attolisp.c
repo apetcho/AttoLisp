@@ -66,10 +66,13 @@ static bool al_gc_running = false;
 static bool al_gc_debug = false;
 static bool al_gc_always = false;
 
+#define AL_ERROR_HEADER printf("\n%s:%d\n", __func__, __LINE__)
+
 // ---
 static void al_error(const char *fmt, ...){
     va_list args;
     va_start(args, fmt);
+    AL_ERROR_HEADER;
     vfprintf(stderr, fmt, args);
     fprintf(stderr, "\n");
     va_end(args);
@@ -414,7 +417,57 @@ static al_object_t* al_read_expr(void *root){
 
 // *****
 static void al_print(al_object_t *object){
-    if(object->type == ATTOLISP_TYPE_CELL){
+    // if(object->type == ATTOLISP_TYPE_CELL){
+    //     printf("(");
+    //     for(;;){
+    //         al_print(object->car);
+    //         if(object->cdr == al_nil){ break; }
+    //         if(object->cdr->type != ATTOLISP_TYPE_CELL){
+    //             printf(" . ");
+    //             al_print(object->cdr);
+    //             break;
+    //         }
+    //         printf(" ");
+    //         object = object->cdr;
+    //     }
+    //     printf(")");
+    //     return;
+    // }
+    // else if(object->type == ATTOLISP_TYPE_INT){
+    //     printf("%d", object->value);
+    //     return;
+    // }
+    // else if(object->type == ATTOLISP_TYPE_SYMBOL){
+    //     printf("%s", object->name);
+    //     return;
+    // }
+    // else if(object->type == ATTOLISP_TYPE_PRIMITIVE){
+    //     printf("%s", "<primitive>");
+    // }
+    // else if(object->type == ATTOLISP_TYPE_FUNCTION){
+    //     printf("%s", "<function>");
+    //     return;
+    // }
+    // else if(object->type == ATTOLISP_TYPE_MACRO){
+    //     printf("%s", "<macro>");
+    //     return;
+    // }
+    // else if(object->type == ATTOLISP_TYPE_MOVED){
+    //     printf("%s", "<moved>");
+    //     return;
+    // }
+    // else if(object->type == ATTOLISP_TYPE_TRUE){
+    //     printf("%s", "t");
+    //     return;
+    // }else if(object->type == ATTOLISP_TYPE_NIL){
+    //     printf("%s", "()");
+    //     return;
+    // }else{
+    //     al_error("ERROR:: print: Unknown tag type: %d", object->type);
+    // }
+
+    switch(object->type){
+    case ATTOLISP_TYPE_CELL:
         printf("(");
         for(;;){
             al_print(object->car);
@@ -429,73 +482,24 @@ static void al_print(al_object_t *object){
         }
         printf(")");
         return;
-    }
-    else if(object->type == ATTOLISP_TYPE_INT){
-        printf("%d", object->value);
-        return;
-    }
-    else if(object->type == ATTOLISP_TYPE_SYMBOL){
-        printf("%s", object->name);
-        return;
-    }
-    else if(object->type == ATTOLISP_TYPE_PRIMITIVE){
-        printf("%s", "<primitive>");
-    }
-    else if(object->type == ATTOLISP_TYPE_FUNCTION){
-        printf("%s", "<function>");
-        return;
-    }
-    else if(object->type == ATTOLISP_TYPE_MACRO){
-        printf("%s", "<macro>");
-        return;
-    }
-    else if(object->type == ATTOLISP_TYPE_MOVED){
-        printf("%s", "<moved>");
-        return;
-    }
-    else if(object->type == ATTOLISP_TYPE_TRUE){
-        printf("%s", "t");
-        return;
-    }else if(object->type == ATTOLISP_TYPE_NIL){
-        printf("%s", "()");
-        return;
-    }else{
-        al_error("ERROR:: print: Unknown tag type: %d", object->type);
-    }
+#define AL_CASE(type, ...)      \
+    case type:                  \
+        printf(__VA_ARGS__);    \
+        return
 
-//     switch(object->type){
-//     case ATTOLISP_TYPE_CELL:
-//         printf("(");
-//         for(;;){
-//             al_print(object->car);
-//             if(object->cdr == al_nil){ break; }
-//             if(object->cdr->type != ATTOLISP_TYPE_CELL){
-//                 printf(" . ");
-//                 al_print(object->cdr);
-//                 break;
-//             }
-//             printf(" ");
-//             object = object->cdr;
-//         }
-//         printf(")");
-//         return;
-// #define AL_CASE(type, ...)      \
-//     case type:                  \
-//         printf(__VA_ARGS__);    \
-//         return
-
-//     AL_CASE(ATTOLISP_TYPE_INT, "%d", object->value);
-//     AL_CASE(ATTOLISP_TYPE_SYMBOL, "%s", object->name);
-//     AL_CASE(ATTOLISP_TYPE_PRIMITIVE, "<primitive>");
-//     AL_CASE(ATTOLISP_TYPE_FUNCTION, "<function>");
-//     AL_CASE(ATTOLISP_TYPE_MACRO, "<macro>");
-//     AL_CASE(ATTOLISP_TYPE_MOVED, "<moved>");
-//     AL_CASE(ATTOLISP_TYPE_TRUE, "t");
-//     AL_CASE(ATTOLISP_TYPE_NIL, "()");
-// #undef AL_CASE
-//         default:
-//             al_error("ERROR:: print: Unknown tag type: %d", object->type);
-//     } // end switch
+    AL_CASE(ATTOLISP_TYPE_INT, "%d", object->value);
+    AL_CASE(ATTOLISP_TYPE_SYMBOL, "%s", object->name);
+    AL_CASE(ATTOLISP_TYPE_PRIMITIVE, "<primitive>");
+    AL_CASE(ATTOLISP_TYPE_FUNCTION, "<function>");
+    AL_CASE(ATTOLISP_TYPE_MACRO, "<macro>");
+    AL_CASE(ATTOLISP_TYPE_MOVED, "<moved>");
+    AL_CASE(ATTOLISP_TYPE_TRUE, "t");
+    AL_CASE(ATTOLISP_TYPE_NIL, "()");
+#undef AL_CASE
+        default:
+            //al_error("ERROR:: print: Unknown tag type: %d", object->type);
+            break;
+    } // end switch
 }
 
 // *****
@@ -607,22 +611,27 @@ static al_object_t* al_apply_callback(
 static al_object_t* al_apply(
     void *root,
     al_object_t **env,
-    al_object_t **callback,
+    al_object_t **fn,
     al_object_t **args
 ){
     if(!al_is_list(*args)){
         al_error("ERROR: argument must be a list");
     }
-    if((*callback)->type == ATTOLISP_TYPE_PRIMITIVE){
-        return (*callback)->fn(root, env, args);
+    // if((*fn)->type != ATTOLISP_TYPE_FUNCTION ||
+    //     (*fn)->type != ATTOLISP_TYPE_PRIMITIVE
+    // ){
+    //     al_error("ERROR:: not supported");
+    // }
+    if((*fn)->type == ATTOLISP_TYPE_PRIMITIVE){
+        return (*fn)->fn(root, env, args);
     }
-    if((*callback)->type == ATTOLISP_TYPE_FUNCTION){
+    if((*fn)->type == ATTOLISP_TYPE_FUNCTION){
         AL_DEFINE1(xargs);
         *xargs = al_eval_list(root, env, args);
-        return al_apply_callback(root, env, callback, xargs);
+        return al_apply_callback(root, env, fn, xargs);
     }
     al_error("ERROR:: not supported");
-    return al_nil; // never reached
+    //return al_nil; // never reached
 }
 
 // *****
@@ -668,16 +677,19 @@ static al_object_t* al_eval(
     case ATTOLISP_TYPE_FUNCTION:
     case ATTOLISP_TYPE_TRUE:
     case ATTOLISP_TYPE_NIL:
-        result = *object;
-        break;
+        //result = 
+        return *object;
+        //break;
     case ATTOLISP_TYPE_SYMBOL:{
         al_object_t *bind = al_find(env, *object);
         if(!bind){
             al_error("ERROR: Undefined symbol: %s", (*object)->name);
         }
-        result = bind->cdr;
+        //result = 
+        return bind->cdr;
+        //break;
     }
-    break;
+    
     case ATTOLISP_TYPE_CELL:{
         AL_DEFINE3(fn, expanded, args);
         *expanded = al_macroexpand(root, env, object);
@@ -690,15 +702,15 @@ static al_object_t* al_eval(
         if((*fn)->type != ATTOLISP_TYPE_PRIMITIVE &&
             (*fn)->type != ATTOLISP_TYPE_FUNCTION
         ){
-            result = al_apply(root, env, fn, args);
+            al_error("The of a list must be a function");  
         }
+        return al_apply(root, env, fn, args);
     }
-    break;
     default:
         al_error("ERROR:: eval: Unknown tag type: %d\n", (*object)->type);
     }// end switch
 
-    return result; // never reached
+    ///return result; // never reached
 }
 
 
@@ -1065,9 +1077,10 @@ int main(int argc, char **argv){
 
     // main loop
     while(1){
-        puts("Reading input ...");
+        printf("%s--->>%s Waiting for input ...\n", "\x1b[34m", "\x1b[0m");
+        printf("%salisp%s>>%s ", "\x1b[32m", "\x1b[1;33m", "\x1b[0m");
         *expr = al_read_expr(root);
-        printf("Input is: ");
+        printf("%s--->>%s Input is: ", "\x1b[34m", "\x1b[0m");
         al_print(*expr);
         if(!*expr){ return 0; }
         if(*expr == al_cparen){
